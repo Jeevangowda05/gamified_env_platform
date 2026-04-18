@@ -1,0 +1,43 @@
+{% extends 'teachers/base.html' %}
+
+{% block title %}Quiz Questions{% endblock %}
+
+{% block teacher_content %}
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="card">
+            <div class="card-header"><h5 class="mb-0">Questions - {{ quiz.title }}</h5></div>
+            <ul class="list-group list-group-flush">
+                {% for question in questions %}
+                <li class="list-group-item">
+                    <div class="d-flex justify-content-between gap-2">
+                        <div>
+                            <strong>Q{{ forloop.counter }}:</strong> {{ question.question_text }}
+                            <div class="small text-muted mt-1">Correct: {{ question.correct_answer }} | Points: {{ question.points }}</div>
+                        </div>
+                        <div class="d-flex gap-1">
+                            <a href="{% url 'teacher:question_update' quiz.id question.id %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                            <a href="{% url 'teacher:question_delete' quiz.id question.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                        </div>
+                    </div>
+                </li>
+                {% empty %}
+                <li class="list-group-item text-muted">No questions added yet.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="card">
+            <div class="card-header"><h6 class="mb-0">Add Question</h6></div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit" class="btn btn-primary">Add Question</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

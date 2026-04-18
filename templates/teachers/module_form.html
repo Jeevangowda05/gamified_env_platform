@@ -1,0 +1,29 @@
+{% extends 'teachers/base.html' %}
+
+{% block title %}Edit Module{% endblock %}
+
+{% block teacher_content %}
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Edit Module: {{ module.title }}</h5>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            <div class="row g-3">
+                {% for field in form %}
+                <div class="col-12">
+                    <label class="form-label fw-semibold" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% for error in field.errors %}<small class="text-danger d-block">{{ error }}</small>{% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Save Module</button>
+                <a href="{% url 'teacher:course_builder' course.id %}" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

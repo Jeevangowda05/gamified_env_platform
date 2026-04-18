@@ -1,0 +1,59 @@
+{% extends 'teachers/base.html' %}
+
+{% block title %}Manage Courses{% endblock %}
+
+{% block teacher_content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Courses</h5>
+        <a href="{% url 'teacher:course_create' %}" class="btn btn-primary btn-sm">Create Course</a>
+    </div>
+    <div class="card-body border-bottom">
+        <form class="row g-2" method="get">
+            <div class="col-md-5">
+                <input type="search" class="form-control" name="q" value="{{ search_query }}" placeholder="Search courses...">
+            </div>
+            <div class="col-md-3">
+                <select name="topic" class="form-select">
+                    <option value="">All Topics</option>
+                    {% for topic in topics %}
+                    <option value="{{ topic.slug }}" {% if selected_topic == topic.slug %}selected{% endif %}>{{ topic.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="status" class="form-select">
+                    <option value="">All</option>
+                    <option value="active" {% if selected_status == 'active' %}selected{% endif %}>Has Enrollments</option>
+                    <option value="empty" {% if selected_status == 'empty' %}selected{% endif %}>No Enrollments</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-outline-primary w-100" type="submit">Filter</button>
+            </div>
+        </form>
+    </div>
+    <div class="table-responsive">
+        <table class="table mb-0 teacher-search-table" data-type="courses">
+            <thead><tr><th>Title</th><th>Topic</th><th>Duration</th><th>Enrollments</th><th>Actions</th></tr></thead>
+            <tbody>
+            {% for course in courses %}
+                <tr>
+                    <td>{{ course.title }}</td>
+                    <td>{{ course.topic|default:"-" }}</td>
+                    <td>{{ course.duration }} mins</td>
+                    <td>{{ course.enrollments.count }}</td>
+                    <td>
+                        <a href="{% url 'teacher:course_builder' course.id %}" class="btn btn-outline-primary btn-sm">Build</a>
+                        <a href="{% url 'teacher:course_update' course.id %}" class="btn btn-outline-secondary btn-sm">Edit</a>
+                        <a href="{% url 'teacher:course_delete' course.id %}" class="btn btn-outline-danger btn-sm">Delete</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="5" class="text-center text-muted py-4">No courses created yet.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

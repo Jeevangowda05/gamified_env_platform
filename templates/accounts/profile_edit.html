@@ -1,0 +1,584 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block title %}Edit Profile - EcoLearn Platform{% endblock %}
+
+
+{% block content %}
+<div class="edit-profile-wrapper py-5">
+    <div class="container">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="header-card p-4 rounded-4 shadow-lg">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap">
+                        <div class="mb-3 mb-md-0">
+                            <h1 class="display-6 fw-bold text-white mb-2">
+                                <i class="fas fa-user-edit me-2"></i>Edit Profile
+                            </h1>
+                            <p class="text-white-50 mb-0">Update your personal information and learning preferences</p>
+                        </div>
+                        <div>
+                            <a href="{% url 'core:profile' %}" class="btn btn-light-custom shadow-sm">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Profile
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Profile Edit Form -->
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <form method="post" enctype="multipart/form-data" id="profileEditForm">
+                    {% csrf_token %}
+                    <input type="hidden" name="remove_avatar" id="removeAvatarInput" value="false">
+                    
+                    <!-- Personal Information Card -->
+                    <div class="card modern-card shadow-lg mb-4">
+                        <div class="card-header-gradient">
+                            <h5 class="mb-0 text-white fw-bold">
+                                <i class="fas fa-user me-2"></i>Personal Information
+                            </h5>
+                        </div>
+                        <div class="card-body p-4">
+                            <!-- Profile Picture Section -->
+                            <div class="profile-picture-modern text-center mb-4 p-4">
+                                <div class="avatar-container mb-3">
+                                    <img src="{% if user.avatar %}{{ user.avatar.url }}{% else %}{% static 'images/avatars/default.png' %}{% endif %}" 
+                                         alt="Current Avatar" class="avatar-preview" id="avatarPreview">
+                                    <div class="avatar-overlay">
+                                        <i class="fas fa-camera fa-2x"></i>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="avatar" class="form-label fw-bold">Profile Picture</label>
+                                    <input type="file" class="form-control form-control-modern" id="avatar" name="avatar" accept="image/*">
+                                </div>
+                                {% if user.avatar %}
+                                <div class="mb-3">
+                                    <button type="button" class="btn btn-outline-danger btn-sm" id="removeAvatarBtn">
+                                        <i class="fas fa-trash-alt me-2"></i>Remove Profile Picture
+                                    </button>
+                                </div>
+                                {% endif %}
+                                <small class="text-muted">Upload a square image (recommended: 300×300px, max 2MB)</small>
+                            </div>
+
+
+                            <!-- Basic Information -->
+                            <div class="form-section-modern mb-4">
+                                <h6 class="section-title-modern">
+                                    <i class="fas fa-info-circle me-2"></i>Basic Information
+                                </h6>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="first_name" class="form-label fw-medium">First Name *</label>
+                                        <input type="text" class="form-control form-control-modern" id="first_name" name="first_name" 
+                                               value="{{ user.first_name }}" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="last_name" class="form-label fw-medium">Last Name *</label>
+                                        <input type="text" class="form-control form-control-modern" id="last_name" name="last_name" 
+                                               value="{{ user.last_name }}" required>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="email" class="form-label fw-medium">Email Address</label>
+                                    <input type="email" class="form-control form-control-modern" id="email" name="email" 
+                                           value="{{ user.email }}" readonly>
+                                    <small class="text-muted">Contact support to change your email address</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="bio" class="form-label fw-medium">Bio</label>
+                                    <textarea class="form-control form-control-modern" id="bio" name="bio" rows="4" maxlength="500">{{ user.bio|default:"" }}</textarea>
+                                    <small class="text-muted" id="bioHelp">Tell us about yourself and your environmental interests (500 characters remaining)</small>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="date_of_birth" class="form-label fw-medium">Date of Birth</label>
+                                        <input type="date" class="form-control form-control-modern" id="date_of_birth" name="date_of_birth" 
+                                               value="{{ user.date_of_birth|date:'Y-m-d' }}">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="phone" class="form-label fw-medium">Phone Number</label>
+                                        <input type="tel" class="form-control form-control-modern" id="phone" name="phone" 
+                                               value="{{ user.phone|default:'' }}" placeholder="+1 (555) 123-4567">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- Educational Information Card -->
+                    <div class="card modern-card shadow-lg mb-4">
+                        <div class="card-header-gradient-success">
+                            <h5 class="mb-0 text-white fw-bold">
+                                <i class="fas fa-graduation-cap me-2"></i>Educational Information
+                            </h5>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="institution" class="form-label fw-medium">Institution/School</label>
+                                    <input type="text" class="form-control form-control-modern" id="institution" name="institution" 
+                                           value="{{ user.institution|default:'' }}" placeholder="Your school or college">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="grade_level" class="form-label fw-medium">Grade/Level</label>
+                                    <select class="form-select form-control-modern" id="grade_level" name="grade_level">
+                                        <option value="">Select Grade</option>
+                                        <option value="6th Grade" {% if user.grade_level == '6th Grade' %}selected{% endif %}>6th Grade</option>
+                                        <option value="7th Grade" {% if user.grade_level == '7th Grade' %}selected{% endif %}>7th Grade</option>
+                                        <option value="8th Grade" {% if user.grade_level == '8th Grade' %}selected{% endif %}>8th Grade</option>
+                                        <option value="9th Grade" {% if user.grade_level == '9th Grade' %}selected{% endif %}>9th Grade</option>
+                                        <option value="10th Grade" {% if user.grade_level == '10th Grade' %}selected{% endif %}>10th Grade</option>
+                                        <option value="11th Grade" {% if user.grade_level == '11th Grade' %}selected{% endif %}>11th Grade</option>
+                                        <option value="12th Grade" {% if user.grade_level == '12th Grade' %}selected{% endif %}>12th Grade</option>
+                                        <option value="Undergraduate" {% if user.grade_level == 'Undergraduate' %}selected{% endif %}>Undergraduate</option>
+                                        <option value="Graduate" {% if user.grade_level == 'Graduate' %}selected{% endif %}>Graduate</option>
+                                        <option value="Teacher" {% if user.grade_level == 'Teacher' %}selected{% endif %}>Teacher</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="student_id" class="form-label fw-medium">Student ID (Optional)</label>
+                                <input type="text" class="form-control form-control-modern" id="student_id" name="student_id" 
+                                       value="{{ user.student_id|default:'' }}" placeholder="Your student identification">
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- Learning Preferences Card -->
+                    <div class="card modern-card shadow-lg mb-4">
+                        <div class="card-header-gradient-info">
+                            <h5 class="mb-0 text-white fw-bold">
+                                <i class="fas fa-brain me-2"></i>Learning Preferences
+                            </h5>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="mb-4">
+                                <label for="learning_style" class="form-label fw-medium">Preferred Learning Style</label>
+                                <select class="form-select form-control-modern" id="learning_style" name="learning_style">
+                                    <option value="">Select Learning Style</option>
+                                    <option value="visual" {% if user.learning_style == 'visual' %}selected{% endif %}>Visual (Images, Diagrams)</option>
+                                    <option value="auditory" {% if user.learning_style == 'auditory' %}selected{% endif %}>Auditory (Videos, Audio)</option>
+                                    <option value="reading" {% if user.learning_style == 'reading' %}selected{% endif %}>Reading/Writing</option>
+                                    <option value="kinesthetic" {% if user.learning_style == 'kinesthetic' %}selected{% endif %}>Kinesthetic (Hands-on)</option>
+                                </select>
+                                <small class="text-muted">This helps us recommend the best content for you</small>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-medium mb-3">Environmental Interests</label>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-check form-check-modern mb-2">
+                                            <input class="form-check-input" type="checkbox" id="climate_change" name="interests" value="climate_change">
+                                            <label class="form-check-label" for="climate_change">Climate Change</label>
+                                        </div>
+                                        <div class="form-check form-check-modern mb-2">
+                                            <input class="form-check-input" type="checkbox" id="renewable_energy" name="interests" value="renewable_energy">
+                                            <label class="form-check-label" for="renewable_energy">Renewable Energy</label>
+                                        </div>
+                                        <div class="form-check form-check-modern mb-2">
+                                            <input class="form-check-input" type="checkbox" id="sustainability" name="interests" value="sustainability">
+                                            <label class="form-check-label" for="sustainability">Sustainability</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check form-check-modern mb-2">
+                                            <input class="form-check-input" type="checkbox" id="waste_management" name="interests" value="waste_management">
+                                            <label class="form-check-label" for="waste_management">Waste Management</label>
+                                        </div>
+                                        <div class="form-check form-check-modern mb-2">
+                                            <input class="form-check-input" type="checkbox" id="biodiversity" name="interests" value="biodiversity">
+                                            <label class="form-check-label" for="biodiversity">Biodiversity</label>
+                                        </div>
+                                        <div class="form-check form-check-modern mb-2">
+                                            <input class="form-check-input" type="checkbox" id="water_conservation" name="interests" value="water_conservation">
+                                            <label class="form-check-label" for="water_conservation">Water Conservation</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- Privacy & Notifications Card -->
+                    <div class="card modern-card shadow-lg mb-4">
+                        <div class="card-header-gradient-warning">
+                            <h5 class="mb-0 text-white fw-bold">
+                                <i class="fas fa-shield-alt me-2"></i>Privacy & Notifications
+                            </h5>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="form-check form-check-modern-toggle mb-3">
+                                <input class="form-check-input" type="checkbox" id="notifications_enabled" name="notifications_enabled" {% if user.notifications_enabled %}checked{% endif %}>
+                                <label class="form-check-label" for="notifications_enabled">
+                                    <strong>Enable Notifications</strong>
+                                    <small class="d-block text-muted">Receive updates about new courses, badges, and achievements</small>
+                                </label>
+                            </div>
+                            <div class="form-check form-check-modern-toggle mb-3">
+                                <input class="form-check-input" type="checkbox" id="email_notifications" name="email_notifications" {% if user.email_notifications %}checked{% endif %}>
+                                <label class="form-check-label" for="email_notifications">
+                                    <strong>Email Notifications</strong>
+                                    <small class="d-block text-muted">Receive weekly progress reports and important updates</small>
+                                </label>
+                            </div>
+                            <div class="form-check form-check-modern-toggle mb-3">
+                                <input class="form-check-input" type="checkbox" id="is_public_profile" name="is_public_profile" {% if user.is_public_profile %}checked{% endif %}>
+                                <label class="form-check-label" for="is_public_profile">
+                                    <strong>Public Profile</strong>
+                                    <small class="d-block text-muted">Allow other students to view your achievements</small>
+                                </label>
+                            </div>
+                            <div class="form-check form-check-modern-toggle">
+                                <input class="form-check-input" type="checkbox" id="show_on_leaderboard" name="show_on_leaderboard" {% if user.show_on_leaderboard %}checked{% endif %}>
+                                <label class="form-check-label" for="show_on_leaderboard">
+                                    <strong>Show on Leaderboard</strong>
+                                    <small class="d-block text-muted">Display your ranking on public leaderboards</small>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- Action Buttons -->
+                    <div class="form-actions-modern d-flex justify-content-between gap-3 mb-4">
+                        <a href="{% url 'core:profile' %}" class="btn btn-outline-secondary-modern btn-lg flex-grow-1">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary-gradient btn-lg flex-grow-1">
+                            <i class="fas fa-save me-2"></i>Save Changes
+                        </button>
+                    </div>
+                </form>
+
+
+                <!-- Account Actions -->
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="card action-card shadow-lg">
+                            <div class="card-body text-center p-4">
+                                <div class="action-icon mb-3">
+                                    <i class="fas fa-key fa-3x text-warning"></i>
+                                </div>
+                                <h6 class="fw-bold">Change Password</h6>
+                                <p class="text-muted small">Update your account security</p>
+                                <a href="{% url 'accounts:password_change' %}" class="btn btn-outline-warning-modern">
+                                    <i class="fas fa-lock me-2"></i>Change Password
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card action-card shadow-lg">
+                            <div class="card-body text-center p-4">
+                                <div class="action-icon mb-3">
+                                    <i class="fas fa-download fa-3x text-info"></i>
+                                </div>
+                                <h6 class="fw-bold">Export Data</h6>
+                                <p class="text-muted small">Download your learning progress</p>
+                                <a href="{% url 'accounts:export_data' %}" class="btn btn-outline-info-modern" download>
+                                    <i class="fas fa-download me-2"></i>Export Data
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block extra_css %}
+<style>
+.edit-profile-wrapper {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+}
+.header-card {
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+}
+.btn-light-custom {
+    background: white;
+    color: #667eea;
+    border: none;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+.btn-light-custom:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    color: #764ba2;
+}
+.modern-card {
+    border-radius: 1.25rem;
+    border: none;
+    overflow: hidden;
+}
+.card-header-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 1.25rem 1.5rem;
+    border: none;
+}
+.card-header-gradient-success {
+    background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+    padding: 1.25rem 1.5rem;
+    border: none;
+}
+.card-header-gradient-info {
+    background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
+    padding: 1.25rem 1.5rem;
+    border: none;
+}
+.card-header-gradient-warning {
+    background: linear-gradient(135deg, #f2994a 0%, #f2c94c 100%);
+    padding: 1.25rem 1.5rem;
+    border: none;
+}
+.profile-picture-modern {
+    background: linear-gradient(135deg, rgba(102,126,234,0.05) 0%, rgba(118,75,162,0.05) 100%);
+    border-radius: 1rem;
+    border: 2px dashed rgba(102,126,234,0.3);
+}
+.avatar-container {
+    position: relative;
+    display: inline-block;
+}
+.avatar-preview {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #667eea;
+    transition: all 0.3s;
+    box-shadow: 0 8px 25px rgba(102,126,234,0.3);
+}
+.avatar-container:hover .avatar-preview {
+    transform: scale(1.05);
+    border-color: #764ba2;
+}
+.avatar-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(102,126,234,0.8);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+    color: white;
+}
+.avatar-container:hover .avatar-overlay {
+    opacity: 1;
+}
+.section-title-modern {
+    color: #667eea;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 3px solid #667eea;
+    display: inline-block;
+}
+.form-control-modern, .form-select {
+    border-radius: 0.75rem;
+    border: 2px solid #e0e6ed;
+    padding: 0.875rem 1rem;
+    transition: all 0.3s;
+    background: #f8f9fa;
+}
+.form-control-modern:focus, .form-select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.25rem rgba(102,126,234,0.15);
+    background: white;
+}
+.form-check-modern .form-check-input {
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 0.4rem;
+    border: 2px solid #ced4da;
+}
+.form-check-modern .form-check-input:checked {
+    background-color: #667eea;
+    border-color: #667eea;
+}
+.form-check-modern-toggle .form-check-input {
+    width: 2.5rem;
+    height: 1.25rem;
+    border-radius: 2rem;
+    cursor: pointer;
+}
+.form-check-modern-toggle .form-check-input:checked {
+    background-color: #56ab2f;
+    border-color: #56ab2f;
+}
+.form-check-modern-toggle {
+    padding: 1rem;
+    border-radius: 0.75rem;
+    background: rgba(102,126,234,0.03);
+    transition: background 0.3s;
+}
+.form-check-modern-toggle:hover {
+    background: rgba(102,126,234,0.08);
+}
+.form-actions-modern {
+    padding-top: 1rem;
+}
+.btn-outline-secondary-modern {
+    background: white;
+    color: #6c757d;
+    border: 2px solid #6c757d;
+    font-weight: 600;
+    border-radius: 0.75rem;
+}
+.btn-outline-secondary-modern:hover {
+    background: #6c757d;
+    color: white;
+    transform: translateY(-2px);
+}
+.btn-primary-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    color: white;
+    font-weight: 600;
+    border-radius: 0.75rem;
+    transition: all 0.3s;
+}
+.btn-primary-gradient:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(102,126,234,0.4);
+}
+.action-card {
+    border-radius: 1rem;
+    border: none;
+    transition: all 0.3s;
+}
+.action-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.15) !important;
+}
+.action-icon {
+    transition: transform 0.3s;
+}
+.action-card:hover .action-icon i {
+    transform: scale(1.15);
+}
+.btn-outline-warning-modern, .btn-outline-info-modern {
+    border-radius: 0.75rem;
+    font-weight: 600;
+    padding: 0.625rem 1.5rem;
+    border-width: 2px;
+    transition: all 0.3s;
+}
+.btn-outline-warning-modern:hover, .btn-outline-info-modern:hover {
+    transform: translateY(-2px);
+}
+</style>
+{% endblock %}
+
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Preview uploaded image
+    const avatarInput = document.getElementById('avatar');
+    const avatarPreview = document.getElementById('avatarPreview');
+    const removeAvatarBtn = document.getElementById('removeAvatarBtn');
+    const removeAvatarInput = document.getElementById('removeAvatarInput');
+    
+    if (avatarInput && avatarPreview) {
+        avatarInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                if (file.size > 2 * 1024 * 1024) {
+                    alert('File size must be less than 2MB');
+                    this.value = '';
+                    return;
+                }
+                if (!file.type.startsWith('image/')) {
+                    alert('Please select an image file');
+                    this.value = '';
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    avatarPreview.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+                removeAvatarInput.value = 'false';
+            }
+        });
+    }
+    
+    // Remove Avatar
+    if (removeAvatarBtn) {
+        removeAvatarBtn.addEventListener('click', function() {
+            if (confirm('Are you sure you want to remove your profile picture?')) {
+                avatarPreview.src = "{% static 'images/avatars/default.png' %}";
+                if (avatarInput) avatarInput.value = '';
+                removeAvatarInput.value = 'true';
+                this.style.display = 'none';
+                alert('Profile picture will be removed when you save changes.');
+            }
+        });
+    }
+    
+    // Form validation
+    const form = document.getElementById('profileEditForm');
+    if (form) {
+        form.addEventListener('submit', function(event) {
+            const firstName = document.getElementById('first_name');
+            const lastName = document.getElementById('last_name');
+            
+            if (!firstName.value.trim() || !lastName.value.trim()) {
+                event.preventDefault();
+                alert('Please fill in your first name and last name.');
+                return false;
+            }
+        });
+    }
+    
+    // Character count for bio
+    const bioTextarea = document.getElementById('bio');
+    if (bioTextarea) {
+        const maxLength = 500;
+        const helpText = document.getElementById('bioHelp');
+        
+        bioTextarea.addEventListener('input', function() {
+            const remaining = maxLength - this.value.length;
+            helpText.textContent = `Tell us about yourself and your environmental interests (${remaining} characters remaining)`;
+            
+            if (remaining < 50) {
+                helpText.classList.add('text-warning');
+                helpText.classList.remove('text-muted');
+            } else {
+                helpText.classList.add('text-muted');
+                helpText.classList.remove('text-warning');
+            }
+        });
+    }
+});
+
+
+function exportUserData() {
+    // TODO: Implement export data functionality
+    alert('Exporting your data... This feature will download your learning progress and achievements.');
+}
+</script>
+{% endblock %}

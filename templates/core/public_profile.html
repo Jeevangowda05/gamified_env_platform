@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ profile_user.get_full_name }} - EcoLearn{% endblock %}
+
+{% block extra_css %}
+<style>
+.public-profile-page {
+    background: linear-gradient(135deg, #dbeafe 0%, #c3cfe2 100%);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+.profile-pop {
+    background: white;
+    border-radius: 32px;
+    box-shadow: 0 24px 80px rgba(102,126,234,0.16), 0 1.5px 24px #dbeafe3a;
+    padding: 3rem 2rem 2.6rem 2rem;
+    margin: 52px 0 52px 0;
+    position: relative;
+    animation: popcard 1s cubic-bezier(.76,-0.09,.33,1.57);
+    z-index: 1;
+}
+@keyframes popcard {
+    from { transform: scale(0.95) translateY(30px); opacity:0; }
+    to   { transform: scale(1) translateY(0); opacity:1; }
+}
+.profile-glassbg {
+    position: absolute;
+    top: -70px; right: -90px;
+    width: 280px; height: 280px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #a6d1ff44 35%, #b8c2e44c 100%);
+    filter: blur(4px);
+    z-index: 0;
+    pointer-events: none;
+}
+.profile-banner {
+    background: linear-gradient(120deg, #667eea 60%, #764ba2 100%);
+    border-radius: 32px 32px 0 0;
+    padding: 37px 0 0 0;
+    min-height: 90px;
+    margin: -3.0rem -2rem 0 -2rem;
+    box-shadow: 0 14px 40px #8b9cfb2b;
+    z-index: 1;
+    position:relative;
+}
+.confetti {
+    pointer-events: none;
+    z-index: 2;
+    position: absolute;
+    left:50%; top:0; transform:translateX(-50%);
+    width: 100%; height: 50px;
+    overflow: visible;
+}
+.confetti span {
+    display: inline-block;
+    width: 10px; height: 10px; border-radius: 100%;
+    opacity:0.64;
+    margin: 0 4px;
+    animation: floatDown 2s infinite alternate;
+}
+.confetti .c1 {background: #ffd700; animation-delay:0s;}
+.confetti .c2 {background: #1be094; animation-delay:0.3s;}
+.confetti .c3 {background: #667eea; animation-delay:0.6s;}
+.confetti .c4 {background: #f8d442; animation-delay:1.1s;}
+.confetti .c5 {background: #e6e8fe; animation-delay:1.6s;}
+@keyframes floatDown {
+    from { transform:translateY(-8px) scale(1);}
+    to   { transform:translateY(16px) scale(1.15);}
+}
+.profile-avatar-lg {
+    width: 156px; height: 156px;
+    border-radius: 50%; margin-bottom: 1.5rem;
+    background: #f3f8fd;
+    object-fit: cover;
+    border: 6px solid #ebeefb;
+    box-shadow: 0 6px 32px #667eea3b;
+    position: relative;
+    z-index: 2;
+    transition: box-shadow 0.3s;
+}
+.profile-avatar-lg.has-avatar {
+    border: 6px solid #36ebe3;
+    box-shadow: 0 0 0 6px #667eea3b, 0 0 24px 7px #38ef7d3b;
+    animation: avatar-glow 2.5s infinite ease-in-out;
+}
+@keyframes avatar-glow {
+    0% { box-shadow: 0 0 0 6px #36ebe388, 0 0 16px 7px #38ef7d2a; }
+    50% { box-shadow: 0 0 0 8px #667eea55, 0 0 40px 12px #ffd70042; }
+    100% { box-shadow: 0 0 0 6px #36ebe388, 0 0 16px 7px #38ef7d2a; }
+}
+.profile-username {
+    font-weight: 900; font-size: 2.4rem;
+    color: #22254c; margin-bottom: 0.2rem; letter-spacing: 1px;
+}
+.profile-institution {
+    font-size: 1.09rem; color: #667eea; opacity: 0.79;
+    margin-bottom: 1.7rem;
+}
+.profile-divider {
+    height: 3px;
+    background: linear-gradient(90deg, #764ba2, #667eea);
+    width: 54px;
+    margin: 1.42rem auto 2rem auto;
+    border-radius: 8px;
+}
+.profile-badges-row {
+    display: flex; justify-content: center; flex-wrap: wrap; gap: 1.5rem; margin-top: 0.7rem;
+}
+.profile-badge {
+    display:inline-block; padding: 1.05rem 2.4rem; font-size: 1.17rem; font-weight: 800;
+    color: #fff; border-radius: 2.5rem;
+    box-shadow: 0 5px 64px #badafa23,0 1.5px 14px #b8b7f229;
+    position: relative;
+    z-index:2;
+}
+.badge-level { background: linear-gradient(120deg,#667eea, #764ba2);}
+.badge-points { background: linear-gradient(120deg, #18ce7270 60%, #23d97e); }
+.badge-badges { background: linear-gradient(120deg, #ffd700 70%, #f8d442); color: #926c00;}
+.badge-courses { background: linear-gradient(120deg, #54e5ff 52%, #667eea);}
+.profile-progress-bar-bg {
+    background: #eceffd;
+    border-radius: 12px;
+    width: 100%; height: 16px;
+    margin: 1.8rem 0 0.7rem 0;
+    overflow: hidden;
+    position:relative;
+}
+.profile-progress-bar {
+    background: linear-gradient(90deg, #18ce72, #ffd700 95%);
+    height: 100%; border-radius: 12px 0 0 12px;
+    width: 0%; min-width: 10%;
+    transition: width 1.2s cubic-bezier(.27,.82,.61,1.12);
+}
+@media (max-width: 900px) {
+    .profile-pop {padding: 2rem 0.7rem;}
+}
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate progress bar if data-progress is set
+    var bar = document.querySelector('.profile-progress-bar');
+    if (bar && bar.dataset.progress) {
+        setTimeout(function() {
+            bar.style.width = bar.dataset.progress + "%";
+        }, 550);
+    }
+});
+</script>
+{% endblock %}
+
+{% block body_class %}public-profile-page{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <div class="profile-pop position-relative text-center">
+                <div class="profile-glassbg"></div>
+                <div class="confetti">
+                    <span class="c1"></span>
+                    <span class="c2"></span>
+                    <span class="c3"></span>
+                    <span class="c4"></span>
+                    <span class="c5"></span>
+                    <span class="c1"></span>
+                </div>
+
+                <!-- Banner -->
+                <div class="profile-banner text-center position-relative mb-0 border-0">
+                    <img src="{% if profile_user.avatar %}{{ profile_user.avatar.url }}{% else %}{% static 'images/avatars/default.png' %}{% endif %}"
+                        alt="{{ profile_user.get_full_name }}"
+                        class="profile-avatar-lg {% if profile_user.avatar %}has-avatar{% endif %} shadow border border-4">
+
+                </div>
+                <!-- Username -->
+                <div class="mt-4 pb-1">
+                    <div class="profile-username">{{ profile_user.get_full_name }}</div>
+                    {% if profile_user.institution %}
+                        <div class="profile-institution"><i class="fas fa-university me-2"></i>{{ profile_user.institution }}</div>
+                    {% endif %}
+                </div>
+                <div class="profile-divider"></div>
+
+                
+
+                <!-- Badges Row -->
+                <div class="profile-badges-row">
+                    <div class="profile-badge badge-level"><i class="fas fa-layer-group me-1"></i> Level {{ user_level }}</div>
+                    <div class="profile-badge badge-points"><i class="fas fa-star me-1"></i> {{ user_points }} Points</div>
+                    <div class="profile-badge badge-badges"><i class="fas fa-medal me-1"></i> {{ user_badges }} Badges</div>
+                    <div class="profile-badge badge-courses"><i class="fas fa-graduation-cap me-1"></i> {{ courses_completed }} Courses</div>
+                </div>
+                <div class="mt-5">
+                    <a href="{% url 'core:leaderboard' %}" class="btn btn-outline-primary px-4 py-2 fw-bold rounded-pill shadow"><i class="fas fa-arrow-left me-2"></i>Back to Leaderboard</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

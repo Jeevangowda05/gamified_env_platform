@@ -1,0 +1,18 @@
+# Core Django packages (simplified for compatibility)
+Django>=4.2,<5.0
+django-extensions>=3.2
+Pillow>=9.0.0
+python-decouple>=3.6
+
+# API and Forms
+djangorestframework>=3.14
+django-cors-headers>=4.0
+django-crispy-forms>=2.0
+crispy-bootstrap5>=0.7
+
+# Development tools
+django-debug-toolbar>=4.0
+
+# Production
+gunicorn>=21.0
+whitenoise>=6.0

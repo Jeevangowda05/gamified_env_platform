@@ -1,0 +1,376 @@
+{% load static %}
+
+<style>
+.navbar {
+    background: rgba(255, 255, 255, 0.86);
+    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.06);
+    border-bottom: 1.5px solid #eee;
+}
+.navbar .navbar-brand {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    background: linear-gradient(90deg,#667eea,#56ab2f);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.navbar-logo {
+    width: 36px !important;
+    height: 36px !important;
+    margin-right: 0.7rem;
+}
+.navbar-nav .nav-link {
+    font-size: 1.08rem;
+    margin: 0.2rem 0.3rem;
+    font-weight: 600;
+    color: #262b44 !important;
+    border-radius: 8px;
+    padding: 0.65rem 1rem;
+    transition: background 0.15s, color 0.15s;
+    white-space: nowrap;
+    line-height: 1.2;
+}
+.navbar-nav .nav-link.active, .navbar-nav .nav-link:hover {
+    background: linear-gradient(90deg,#56ab2f,#a8e063);
+    color: #fff !important;
+    text-shadow: 0 2px 10px rgba(86,171,47,0.06);
+}
+.dropdown-menu {
+    border-radius: 14px;
+    border: none;
+    box-shadow: 0 4px 18px rgba(44,67,176,0.13);
+    padding: 0.4rem 0;
+    font-size: 1.07rem;
+    margin-top: 0.35rem;
+    z-index: 1080;
+}
+.dropdown-item {
+    border-radius: 8px;
+    color: #262b44 !important;
+    font-weight: 500;
+}
+.dropdown-item:hover, .dropdown-item.active {
+    background: linear-gradient(90deg,#a8e063,#56ab2f);
+    color: #fff !important;
+}
+.dropdown-submenu {
+    position: relative;
+}
+.dropdown-submenu > .dropdown-menu {
+    top: 0;
+    left: 100%;
+    margin-top: -0.2rem;
+    margin-left: 0.35rem;
+    display: none;
+}
+.dropdown-submenu:hover > .dropdown-menu,
+.dropdown-submenu.show > .dropdown-menu {
+    display: block;
+}
+.search-input {
+    border-radius: 30px;
+    border: 1px solid #e9ebf7;
+    background: #f7fafc;
+    min-width: 240px;
+    font-size: 1.09rem;
+    padding: 0.6rem 1.1rem;
+    outline: none;
+}
+.btn, .btn-outline-primary, .btn-primary {
+    border-radius: 30px !important;
+    font-weight: 600 !important;
+    letter-spacing: 1px;
+    font-size: 1.01rem !important;
+}
+.user-avatar {
+    border-radius: 50%;
+    box-shadow: 0 4px 10px rgba(102,126,234,0.10);
+    border: 2.5px solid #fff;
+    width: 36px;
+    height: 36px;
+    object-fit: cover;
+    background: #e9ecef;
+    margin-right: 8px;
+}
+.notification-toggle {
+    position: relative;
+    font-size: 1.4rem;
+    margin-right: 18px;
+}
+.notification-badge {
+    position: absolute;
+    top: -8px; right: -12px;
+    background: #e11d48;
+    color: #fff;
+    font-size: 0.72rem;
+    padding: 2.5px 7px;
+    border-radius: 50%;
+    font-weight: 700;
+    box-shadow: 0 2px 7px rgba(86,171,47,0.18);
+}
+.user-menu, .user-dropdown {
+    min-width: 180px;
+}
+.notification-controls {
+    padding: 0.5rem 0.85rem;
+}
+.notification-list .dropdown-item {
+    white-space: normal;
+}
+@media (max-width: 992px) {
+    .navbar .navbar-brand { font-size: 1.5rem; }
+    .search-input { min-width: 150px; }
+    .navbar-nav .nav-link {
+        margin: 0.15rem 0;
+        padding: 0.55rem 0.8rem;
+    }
+    .dropdown-submenu > .dropdown-menu {
+        position: static;
+        margin: 0.35rem 0 0.25rem 1rem;
+        box-shadow: none;
+        border: 1px solid #eef1ff;
+    }
+}
+</style>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
+    <div class="container-fluid">
+        <!-- Brand -->
+        <a class="navbar-brand d-flex align-items-center" href="{% url 'core:home' %}">
+            <img src="{% static 'images/Logos.png' %}" alt="EEP Logo" class="navbar-logo me-2" style="height: 32px;">
+            <span class="brand-text"><strong class="text-primary">Eco</strong><span class="text-success">Learn</span></span>
+        </a>
+        <!-- Mobile Toggle -->
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <!-- Navigation Links -->
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'core:home' %}">
+                        <i class="fas fa-home me-1"></i>Home
+                    </a>
+                </li>
+                {% if user.is_authenticated %}
+                    {% if user.user_type != 'teacher' %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'core:dashboard' %}">
+                            <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if user.user_type == 'teacher' %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.namespace == 'teacher' %}active{% endif %}" href="{% url 'teacher:dashboard' %}">
+                            <i class="fas fa-chalkboard-teacher me-1"></i>Teacher
+                        </a>
+                    </li>
+                    
+                    {% endif %}
+                {% endif %}
+                <!-- Dropdowns -->
+                 {% if user.user_type != 'teacher' %}
+                <li class="nav-item dropdown">
+                    <button class="nav-link dropdown-toggle btn btn-link border-0 bg-transparent" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-graduation-cap me-1"></i>Learn
+                    </button>
+                    <ul class="dropdown-menu">                                                 
+                                <li><a class="dropdown-item" href="{% url 'core:course_list' %}">
+                                    <i class="fas fa-book-open text-primary me-2"></i>All Courses
+                                </a></li>                        
+                        <li><a class="dropdown-item" href="{% url 'core:topic_list' %}">
+                            <i class="fas fa-leaf text-success me-2"></i>Environmental Topics
+                        </a></li>                      
+                                  <li><a class="dropdown-item" href="{% url 'assessments:quiz_list' %}">
+                                    <i class="fas fa-list-check text-info me-2"></i>Quizzes
+                                </a></li>
+                        
+                        <li><a class="dropdown-item" href="{% url 'challenges:challenge_list' %}">
+                        <i class="fas fa-trophy text-success me-2"></i>Challenges
+                        </a></li>
+                    </ul>
+                </li>
+                {% endif %}
+                {% if user.is_authenticated and user.user_type == 'teacher' %}
+                <li class="nav-item dropdown">
+                    <button class="nav-link dropdown-toggle btn btn-link border-0 bg-transparent" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-graduation-cap me-1"></i>Learn
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li class="dropdown-submenu">
+                            <button class="dropdown-item dropdown-toggle" type="button" data-submenu-toggle>
+                                <i class="fas fa-book text-primary me-2"></i>All Courses
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{% url 'core:course_list' %}">
+                                    <i class="fas fa-book-open text-primary me-2"></i> Courses
+                                </a></li>        
+                                <li class="nav-item"><a class="nav-link {% if 'course' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'teacher:course_list' %}">AddCourses</a></li>
+
+                            </ul>
+                        </li>
+                        <li><a class="dropdown-item" href="{% url 'core:topic_list' %}">
+                            <i class="fas fa-leaf text-success me-2"></i>Environmental Topics
+                        </a></li>
+                        <li class="dropdown-submenu">
+                            <button class="dropdown-item dropdown-toggle" type="button" data-submenu-toggle>
+                                <i class="fas fa-question-circle text-info me-2"></i>Quizzes
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{% url 'assessments:quiz_list' %}">
+                                    <i class="fas fa-list-check text-info me-2"></i> Quizzes
+                                </a></li>
+                                        <li class="nav-item"><a class="nav-link {% if 'quiz' in request.resolver_match.url_name or 'question' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'teacher:quiz_list' %}">Add Quizzes</a></li>
+
+                            </ul>
+                        </li>
+                        <li><a class="dropdown-item" href="{% url 'challenges:challenge_list' %}">
+                        <i class="fas fa-trophy text-success me-2"></i>Challenges
+                        </a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <button class="nav-link dropdown-toggle btn btn-link border-0 bg-transparent" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-screwdriver-wrench me-1"></i>Management
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'teacher:enrollments' %}">
+                            <i class="fas fa-user-check text-primary me-2"></i>Enrollments
+                        </a></li>
+                        <li><a class="dropdown-item" href="{% url 'teacher:analytics' %}">
+                            <i class="fas fa-chart-line text-success me-2"></i>Analytics
+                        </a></li>
+                    </ul>
+                </li>
+                {% endif %}
+                {% if user.is_authenticated %}
+                <li class="nav-item dropdown">
+                    <button class="nav-link dropdown-toggle btn btn-link border-0 bg-transparent" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-trophy me-1"></i>Gamification
+                    </button>
+                    <ul class="dropdown-menu">
+                       <li><a class="dropdown-item" href="{% url 'gamification:badges' %}">
+    <i class="fas fa-medal text-warning me-2"></i>Badges
+</a></li>
+<li><a class="dropdown-item" href="{% url 'core:leaderboard' %}">
+    <i class="fas fa-crown text-warning me-2"></i>Leaderboard
+</a></li>
+<li><hr class="dropdown-divider"></li>
+<li><a class="dropdown-item" href="{% url 'gamification:point_history' %}">
+    <i class="fas fa-history text-secondary me-2"></i>Point History
+</a></li>
+
+
+                        
+
+                    </ul>
+                </li>
+                {% endif %}
+            </ul>
+            <!-- Search Bar -->
+            <form class="d-flex me-3" role="search">
+                <div class="input-group">
+                    <input class="form-control search-input" type="search" placeholder="Search courses, topics..." aria-label="Search" id="globalSearch">
+                    <button class="btn btn-outline-primary" type="submit">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </form>
+            <!-- User Menu / Login/Signup -->
+            <ul class="navbar-nav">
+                {% if user.is_authenticated %}
+                    <!-- Notifications -->
+                    <li class="nav-item dropdown">
+                        <button class="nav-link notification-toggle btn btn-link border-0 bg-transparent" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-badge" id="notificationCount">0</span>
+                        </button>
+                        <!-- Notifications dropdown (load via AJAX if needed) -->
+                        <ul class="dropdown-menu dropdown-menu-end notification-dropdown">
+                            <li class="dropdown-header d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0">Notifications</h6>
+                                <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none" id="markAllNotificationsRead">
+                                    Mark all as read
+                                </button>
+                            </li>
+                            <li class="notification-controls">
+                                <div class="btn-group btn-group-sm w-100" role="group" aria-label="Notification filter">
+                                    <button type="button" class="btn btn-outline-secondary active" data-notification-filter="unread">Unread</button>
+                                    <button type="button" class="btn btn-outline-secondary" data-notification-filter="all">All</button>
+                                    <button type="button" class="btn btn-outline-secondary" data-notification-filter="archived">Archived</button>
+                                </div>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><div id="notificationsList" class="notification-list"><!-- Notifications loaded here --></div></li>
+                        </ul>
+                    </li>
+                    <!-- User Profile -->
+                    <li class="nav-item dropdown">
+                        <button class="nav-link dropdown-toggle user-menu btn btn-link border-0 bg-transparent" type="button" data-bs-toggle="dropdown">
+                            <img src="{% if user.avatar %}{{ user.avatar.url }}{% else %}{% static 'images/avatars/default.png' %}{% endif %}" alt="Profile" class="user-avatar me-2">
+                            <span class="user-name">{{ user.first_name }}</span>
+                            <span class="user-level badge bg-primary ms-2">Lv{{ user_level }}</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end user-dropdown">
+                            <li class="dropdown-header">
+                                <div class="user-info">
+                                    <strong>{{ user.get_full_name }}</strong>
+                                    <div class="text-muted small">{{ user.email }}</div>
+                                    <div class="user-stats mt-2">
+                                        <span class="badge bg-success me-1"><i class="fas fa-coins"></i> {{ user_points }}</span>
+                                        <span class="badge bg-info"><i class="fas fa-medal"></i> {{ user_badges }}</span>
+                                    </div>
+                                </div>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'core:profile' %}"><i class="fas fa-user me-2"></i>Profile</a></li>
+                            <li><a class="dropdown-item" href="{% url 'accounts:settings' %}"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form method="post" action="{% url 'accounts:logout' %}" class="d-inline">{% csrf_token %}
+                                    <button type="submit" class="dropdown-item text-danger">
+                                        <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                {% else %}
+                    <li class="nav-item me-2">
+                        <a class="btn btn-outline-primary" href="{% url 'accounts:login' %}">
+                            <i class="fas fa-sign-in-alt me-1"></i>Login
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-primary" href="{% url 'accounts:register' %}">
+                            <i class="fas fa-user-plus me-1"></i>Sign Up
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('[data-submenu-toggle]').forEach(function (toggle) {
+        toggle.addEventListener('click', function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+            const submenu = toggle.closest('.dropdown-submenu');
+            submenu.classList.toggle('show');
+        });
+    });
+    document.querySelectorAll('.nav-item.dropdown').forEach(function (dropdownItem) {
+        dropdownItem.addEventListener('hide.bs.dropdown', function () {
+            dropdownItem.querySelectorAll('.dropdown-submenu.show').forEach(function (submenu) {
+                submenu.classList.remove('show');
+            });
+        });
+    });
+});
+</script>

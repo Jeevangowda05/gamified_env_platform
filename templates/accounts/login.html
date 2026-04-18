@@ -1,0 +1,416 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Login - EcoLearn Platform{% endblock %}
+
+{% block extra_css %}
+<style>
+.auth-page {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-page::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(circle at 20% 50%, rgba(102, 126, 234, 0.2) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(240, 147, 251, 0.2) 0%, transparent 50%);
+    animation: gradient-shift 15s ease infinite;
+}
+
+@keyframes gradient-shift {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(50px, 50px) scale(1.1); }
+}
+
+.auth-card {
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 24px;
+    padding: 3rem;
+    box-shadow: 
+        0 20px 60px rgba(0,0,0,0.2),
+        inset 0 1px 0 rgba(255,255,255,0.5);
+    max-width: 450px;
+    width: 100%;
+    animation: fadeInUp 0.8s ease-out;
+    position: relative;
+    z-index: 10;
+    border: 1px solid rgba(255,255,255,0.3);
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.auth-logo {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.logo-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.logo-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 10px 30px rgba(46, 139, 87, 0.3));
+}
+
+.auth-logo h3 {
+    font-size: 2.5rem;
+    font-weight: 900;
+    margin-bottom: 0.75rem;
+    background: linear-gradient(135deg, #2E8B57, #20B2AA);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.auth-logo p {
+    color: #6c757d;
+    font-size: 1.05rem;
+    line-height: 1.6;
+}
+
+.form-label {
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 0.75rem;
+    font-size: 0.95rem;
+}
+
+.form-control {
+    padding: 1rem 1.25rem;
+    border-radius: 12px;
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    background: #f8f9fa;
+}
+
+.form-control:focus {
+    border-color: #2E8B57;
+    box-shadow: 0 0 0 0.25rem rgba(46, 139, 87, 0.15);
+    background: white;
+    transform: translateY(-2px);
+}
+
+.form-check-input {
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 2px solid #e9ecef;
+    cursor: pointer;
+}
+
+.form-check-input:checked {
+    background-color: #2E8B57;
+    border-color: #2E8B57;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #2E8B57, #20B2AA);
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 1.05rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 25px rgba(46, 139, 87, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.5s, height 0.5s;
+}
+
+.btn-primary:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px rgba(46, 139, 87, 0.4);
+}
+
+.btn-outline-primary {
+    border: 2px solid #2E8B57;
+    color: #2E8B57;
+    padding: 0.875rem 2rem;
+    border-radius: 12px;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.btn-outline-primary:hover {
+    background: #2E8B57;
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(46, 139, 87, 0.3);
+}
+
+.alert-danger {
+    background: linear-gradient(135deg, rgba(220, 53, 69, 0.1), rgba(255, 193, 7, 0.1));
+    border: 2px solid rgba(220, 53, 69, 0.3);
+    border-radius: 12px;
+    padding: 1rem;
+    color: #dc3545;
+    font-weight: 600;
+}
+
+hr {
+    border-top: 2px solid rgba(0,0,0,0.05);
+    margin: 2rem 0;
+}
+
+a.text-muted:hover {
+    color: #2E8B57 !important;
+}
+
+.divider {
+    text-align: center;
+    position: relative;
+    margin: 1.5rem 0;
+}
+
+.divider::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 100%;
+    height: 1px;
+    background: rgba(0,0,0,0.1);
+}
+
+.divider span {
+    background: rgba(255, 255, 255, 0.98);
+    padding: 0 1rem;
+    color: #6c757d;
+    font-size: 0.9rem;
+    font-weight: 600;
+    position: relative;
+    z-index: 1;
+}
+
+.social-login {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.btn-social {
+    flex: 1;
+    padding: 0.875rem 1.25rem;
+    border-radius: 12px;
+    border: 2px solid;
+    font-weight: 700;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-social::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.5s, height 0.5s;
+}
+
+.btn-social:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.btn-google {
+    background: white;
+    border-color: #db4437;
+    color: #db4437;
+}
+
+.btn-google:hover {
+    background: #db4437;
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(219, 68, 55, 0.3);
+}
+
+.btn-facebook {
+    background: white;
+    border-color: #4267B2;
+    color: #4267B2;
+}
+
+.btn-facebook:hover {
+    background: #4267B2;
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(66, 103, 178, 0.3);
+}
+
+.btn-social i {
+    font-size: 1.2rem;
+}
+
+@media (max-width: 768px) {
+    .auth-card {
+        padding: 2rem;
+        margin: 1rem;
+    }
+    
+    .auth-logo h3 {
+        font-size: 2rem;
+    }
+    
+    .logo-icon {
+        width: 70px;
+        height: 70px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="auth-card">
+                    <div class="auth-logo">
+                        <div class="logo-icon">
+                            <img src="{% static 'images/Logos.png' %}" alt="EcoLearn Tree Logo">
+                        </div>
+                        <h3><strong class="text-primary">Eco</strong><span class="text-success">Learn</span></h3>
+                        <p class="text-muted">Welcome back to your environmental learning journey</p>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label for="id_username" class="form-label fw-medium">Email or Username</label>
+                            <input type="text" class="form-control" id="id_username" name="username" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_password" class="form-label fw-medium">Password</label>
+                            <input type="password" class="form-control" id="id_password" name="password" required>
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="remember_me">
+                            <label class="form-check-label" for="remember_me">
+                                Remember me
+                            </label>
+                        </div>
+
+                        {% if form.errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <button type="submit" class="btn btn-primary w-100 mb-3">
+                            <i class="fas fa-sign-in-alt me-2"></i>Login to EcoLearn
+                        </button>
+
+                        <div class="text-center">
+                            <a href="{% url 'accounts:password_reset' %}" class="text-decoration-none text-muted">
+                                Forgot your password?
+                            </a>
+                        </div>
+                    </form>
+
+                    <div class="divider">
+                        <span>Or continue with</span>
+                    </div>
+
+                    <div class="social-login">
+                        <button type="button" class="btn-social btn-google" onclick="loginWithGoogle()">
+                            <i class="fab fa-google"></i>
+                            <span>Google</span>
+                        </button>
+                        <button type="button" class="btn-social btn-facebook" onclick="loginWithFacebook()">
+                            <i class="fab fa-facebook-f"></i>
+                            <span>Facebook</span>
+                        </button>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="text-center">
+                        <p class="text-muted mb-0">Don't have an account?</p>
+                        <a href="{% url 'accounts:register' %}" class="btn btn-outline-primary w-100 mt-2">
+                            <i class="fas fa-user-plus me-2"></i>Create Account
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function loginWithGoogle() {
+    alert('Google login coming soon! Please use regular login for now.');
+}
+
+function loginWithFacebook() {
+    alert('Facebook login coming soon! Please use regular login for now.');
+}
+</script>
+{% endblock %}

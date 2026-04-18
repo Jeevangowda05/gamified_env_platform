@@ -1,0 +1,17 @@
+{% extends 'teachers/base.html' %}
+
+{% block title %}Delete Quiz{% endblock %}
+
+{% block teacher_content %}
+<div class="card">
+    <div class="card-body">
+        <h5>Delete Quiz</h5>
+        <p>Are you sure you want to delete <strong>{{ quiz.title }}</strong>?</p>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Delete</button>
+            <a href="{% url 'teacher:quiz_list' %}" class="btn btn-outline-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

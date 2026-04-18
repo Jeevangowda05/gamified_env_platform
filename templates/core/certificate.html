@@ -1,0 +1,344 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Certificate - {{ course.title }}{% endblock %}
+{% block body_class %}certificate-page{% endblock %}
+
+{% block extra_css %}
+<style>
+/* A4 Paper Dimensions: 210mm x 297mm */
+.certificate-page {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.certificate-wrapper {
+    max-width: 210mm;
+    margin: 0 auto;
+    padding-bottom: 3rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.celebration-header {
+    text-align: center;
+    color: white;
+    margin-bottom: 2rem;
+}
+
+.celebration-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+}
+
+.celebration-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 0.75rem;
+    text-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+
+.celebration-subtitle {
+    font-size: 1.2rem;
+    opacity: 0.95;
+}
+
+.certificate-card {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem 2rem 2rem 2rem;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    position: relative;
+    overflow: hidden;
+    border: 8px solid #ffd700;
+    margin-bottom: 2rem;
+    width: 210mm;
+    height: 297mm;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.certificate-card::before {
+    content: '';
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    right: 15px;
+    bottom: 15px;
+    border: 2px solid rgba(102, 126, 234, 0.15);
+    border-radius: 8px;
+    pointer-events: none;
+}
+
+.certificate-header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    padding-top: 1rem;
+}
+
+.certificate-logo {
+    font-size: 3.5rem;
+    color: #667eea;
+    margin-bottom: 0.8rem;
+}
+
+.certificate-type {
+    font-size: 1.3rem;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 5px;
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.certificate-body {
+    text-align: center;
+    padding: 1rem 1rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.certificate-recipient {
+    font-size: 1.1rem;
+    color: #6c757d;
+    margin-bottom: 1.2rem;
+}
+
+.certificate-name {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #2c3e50;
+    margin-bottom: 1.8rem;
+    font-family: 'Georgia', serif;
+}
+
+.certificate-text {
+    font-size: 1.1rem;
+    color: #495057;
+    line-height: 1.8;
+    margin-bottom: 1.2rem;
+}
+
+.certificate-course {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #667eea;
+    margin: 1.8rem 0;
+    padding: 0 2rem;
+}
+
+.certificate-info {
+    display: flex;
+    justify-content: center;
+    gap: 4rem;
+    margin: 2rem 0 0 0;
+    padding-top: 1.5rem;
+}
+
+.info-block {
+    text-align: center;
+}
+
+.info-label {
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    font-size: 1.05rem;
+}
+
+.info-value {
+    color: #6c757d;
+    font-size: 1rem;
+}
+
+.certificate-footer {
+    text-align: center;
+    padding-top: 1.5rem;
+    margin-top: auto;
+}
+
+.platform-name {
+    font-weight: 700;
+    color: #2c3e50;
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.platform-tagline {
+    color: #6c757d;
+    font-size: 0.95rem;
+}
+
+.action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 3rem;
+}
+
+.btn-action {
+    padding: 1rem 2.5rem;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: all 0.3s;
+    border: none;
+    font-size: 1.05rem;
+}
+
+.btn-download {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+
+.btn-download:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    color: white;
+}
+
+.btn-dashboard {
+    background: white;
+    color: #667eea;
+    border: 2px solid #667eea;
+}
+
+.btn-dashboard:hover {
+    background: #667eea;
+    color: white;
+}
+
+/* Print Styles for A4 */
+@media print {
+    @page {
+        size: A4;
+        margin: 0;
+    }
+    
+    body {
+        margin: 0;
+        padding: 0;
+        background: white !important;
+    }
+    
+    .certificate-page {
+        background: white;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .celebration-header,
+    .action-buttons,
+    .navbar,
+    .footer,
+    footer,
+    .btn,
+    nav,
+    header {
+        display: none !important;
+    }
+    
+    .certificate-wrapper {
+        max-width: 100%;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 270mm;
+        height: 270mm;
+    }
+    
+    .certificate-card {
+        box-shadow: none;
+        page-break-inside: avoid;
+        margin: 0;
+        padding: 2rem 2rem;
+        border-radius: 0;
+        width: 210mm;
+        height: 280mm;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: stretch;
+        box-sizing: border-box;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="certificate-wrapper">
+    <div>
+        <!-- Celebration Header (Hidden in print) -->
+        <div class="celebration-header">
+            <div class="celebration-icon">🎉</div>
+            <h1 class="celebration-title">Congratulations!</h1>
+            <p class="celebration-subtitle">You've successfully completed the course</p>
+        </div>
+
+        <!-- Certificate -->
+        <div class="certificate-card">
+            <div class="certificate-header">
+                <div class="certificate-logo">
+                    <i class="fas fa-leaf"></i>
+                </div>
+                <div class="certificate-type">Certificate of Completion</div>
+            </div>
+
+            <div class="certificate-body">
+                <div class="certificate-recipient">This certificate is proudly presented to</div>
+                <div class="certificate-name">{{ user.get_full_name|default:user.username }}</div>
+                <div class="certificate-text">
+                    For successfully completing the comprehensive course
+                </div>
+                <div class="certificate-course">"{{ course.title }}"</div>
+                <div class="certificate-text">
+                    Demonstrating commitment to environmental education and sustainability principles
+                </div>
+
+                <!-- Certificate Info -->
+                <div class="certificate-info">
+                    <div class="info-block">
+                        <div class="info-label">Completion Date</div>
+                        <div class="info-value">{{ certificate.issued_at|date:"F d, Y" }}</div>
+                    </div>
+                    {% if certificate.certificate_id %}
+                    <div class="info-block">
+                        <div class="info-label">Certificate ID</div>
+                        <div class="info-value">{{ certificate.certificate_id }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="certificate-footer">
+                <div class="platform-name">EcoLearn Platform</div>
+                <div class="platform-tagline">Environmental Education & Sustainability</div>
+            </div>
+        </div>
+
+        <!-- Action Buttons (Hidden in print) -->
+        <div class="action-buttons">
+            <button class="btn btn-action btn-download" onclick="window.print()">
+                <i class="fas fa-download me-2"></i>Download Certificate
+            </button>
+            <a href="{% url 'core:dashboard' %}" class="btn btn-action btn-dashboard">
+                <i class="fas fa-tachometer-alt me-2"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

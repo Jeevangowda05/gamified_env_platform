@@ -1,0 +1,294 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Challenge Submissions - EcoLearn{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --eco-green: #10b981;
+    }
+
+    .submissions-hero {
+        background: var(--primary-gradient);
+        color: white;
+        padding: 40px;
+        border-radius: 15px;
+        margin-bottom: 40px;
+    }
+
+    .submissions-hero h1 {
+        font-size: 2.2rem;
+        margin-bottom: 10px;
+        font-weight: 700;
+    }
+
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 20px;
+        margin-top: 30px;
+    }
+
+    .stat-card {
+        background: rgba(255, 255, 255, 0.15);
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+
+    .submissions-table {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        margin-bottom: 30px;
+    }
+
+    .table-wrapper {
+        overflow-x: auto;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    thead {
+        background: #f8f9fa;
+        border-bottom: 2px solid #e5e7eb;
+    }
+
+    th {
+        padding: 18px;
+        text-align: left;
+        font-weight: 600;
+        color: #374151;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    td {
+        padding: 18px;
+        border-bottom: 1px solid #f0f0f0;
+        color: #4b5563;
+    }
+
+    tbody tr:hover {
+        background: #f9fafb;
+    }
+
+    .challenge-name {
+        font-weight: 600;
+        color: #1f2937;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.8rem;
+    }
+
+    .status-approved {
+        background: #d1fae5;
+        color: #059669;
+    }
+
+    .status-pending {
+        background: #fef3c7;
+        color: #d97706;
+    }
+
+    .status-rejected {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .action-links {
+        display: flex;
+        gap: 10px;
+    }
+
+    .action-links a {
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .link-view {
+        background: #e0e7ff;
+        color: #4f46e5;
+    }
+
+    .link-view:hover {
+        background: #c7d2fe;
+    }
+
+    .no-submissions {
+        text-align: center;
+        padding: 60px 20px;
+        background: white;
+        border-radius: 12px;
+    }
+
+    .no-submissions-icon {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        opacity: 0.5;
+    }
+
+    .empty-state-title {
+        font-size: 1.5rem;
+        color: #1f2937;
+        margin-bottom: 10px;
+        font-weight: 600;
+    }
+
+    .empty-state-text {
+        color: #6b7280;
+        margin-bottom: 25px;
+    }
+
+    .btn-explore {
+        background: var(--primary-gradient);
+        color: white;
+        padding: 12px 30px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+
+    .btn-explore:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+    }
+
+    @media (max-width: 768px) {
+        .submissions-hero h1 {
+            font-size: 1.5rem;
+        }
+
+        .table-wrapper {
+            font-size: 0.85rem;
+        }
+
+        th, td {
+            padding: 12px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-5">
+    <!-- Hero Section -->
+    <div class="submissions-hero">
+        <h1>📋 My Challenge Submissions</h1>
+        <p>Track your environmental action submissions and progress</p>
+
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-value">{{ submissions.count }}</div>
+                <div class="stat-label">Total Submissions</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ approved_count }}</div>
+                <div class="stat-label">Approved ✓</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ pending_count }}</div>
+                <div class="stat-label">Pending ⏳</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ rejected_count }}</div>
+                <div class="stat-label">Rejected</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Submissions Table -->
+    {% if submissions %}
+        <div class="submissions-table">
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Challenge</th>
+                            <th>Status</th>
+                            <th>Submitted On</th>
+                            <th>Reviewed On</th>
+                            <th>Points</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for submission in submissions %}
+                            <tr>
+                                <td class="challenge-name">{{ submission.challenge.title }}</td>
+                                <td>
+                                    <span class="status-badge status-{{ submission.get_status_display|lower }}">
+                                        {% if submission.status == 'approved' %}
+                                            ✓ {{ submission.get_status_display }}
+                                        {% elif submission.status == 'pending' %}
+                                            ⏳ {{ submission.get_status_display }}
+                                        {% else %}
+                                            ✗ {{ submission.get_status_display }}
+                                        {% endif %}
+                                    </span>
+                                </td>
+                                <td>{{ submission.submitted_at|date:"M d, Y" }}</td>
+                                <td>
+                                    {% if submission.reviewed_at %}
+                                        {{ submission.reviewed_at|date:"M d, Y" }}
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if submission.status == 'approved' %}
+                                        <strong>⭐ +{{ submission.challenge.points_reward }}</strong>
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="action-links">
+                                        <a href="{% url 'challenges:challenge_detail' submission.challenge.pk %}" class="link-view">View →</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% else %}
+        <div class="no-submissions">
+            <div class="no-submissions-icon">📝</div>
+            <h3 class="empty-state-title">No Submissions Yet</h3>
+            <p class="empty-state-text">Start taking on environmental challenges and submit your proof!</p>
+            <a href="{% url 'challenges:challenge_list' %}" class="btn-explore">Explore Challenges →</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

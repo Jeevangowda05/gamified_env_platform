@@ -1,0 +1,235 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Environmental Topics - EcoLearn Platform{% endblock %}
+{% block body_class %}topics-page{% endblock %}
+
+{% block extra_css %}
+<style>
+.topics-page {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+}
+
+.topics-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 100px 0 80px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.topics-header::before {
+    content: '';
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    top: -150px;
+    left: -150px;
+    animation: rotate 30s linear infinite;
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.page-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+    text-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+
+.page-subtitle {
+    font-size: 1.3rem;
+    opacity: 0.95;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.topic-card {
+    background: white;
+    border-radius: 24px;
+    padding: 3rem 2rem;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 1px solid rgba(0,0,0,0.05);
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.topic-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 6px;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    transform: scaleX(0);
+    transition: transform 0.3s;
+}
+
+.topic-card:hover::before {
+    transform: scaleX(1);
+}
+
+.topic-card:hover {
+    transform: translateY(-15px);
+    box-shadow: 0 30px 70px rgba(102, 126, 234, 0.25);
+}
+
+.topic-icon-wrapper {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 2rem;
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: all 0.3s;
+}
+
+.topic-card:hover .topic-icon-wrapper {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.topic-icon {
+    font-size: 3rem;
+    color: white;
+}
+
+.topic-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.topic-description {
+    color: #6c757d;
+    line-height: 1.6;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.topic-meta {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 2px solid rgba(102, 126, 234, 0.1);
+}
+
+.meta-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #667eea;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.meta-badge i {
+    font-size: 1.2rem;
+}
+
+.btn-explore {
+    width: 100%;
+    padding: 0.875rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-weight: 600;
+    transition: all 0.3s;
+    margin-top: 1rem;
+}
+
+.btn-explore:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    color: white;
+}
+
+.animate-fade-in {
+    animation: fadeInUp 0.6s ease-out forwards;
+    opacity: 0;
+}
+
+.animate-fade-in:nth-child(1) { animation-delay: 0.1s; }
+.animate-fade-in:nth-child(2) { animation-delay: 0.2s; }
+.animate-fade-in:nth-child(3) { animation-delay: 0.3s; }
+.animate-fade-in:nth-child(4) { animation-delay: 0.4s; }
+.animate-fade-in:nth-child(5) { animation-delay: 0.5s; }
+.animate-fade-in:nth-child(6) { animation-delay: 0.6s; }
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.empty-state {
+    text-align: center;
+    padding: 5rem 2rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="topics-header">
+    <div class="container text-center">
+        <h1 class="page-title">Environmental Topics</h1>
+        <p class="page-subtitle">
+            Explore comprehensive environmental education across diverse sustainability topics
+        </p>
+    </div>
+</div>
+
+<div class="container py-5">
+    {% if topics %}
+    <div class="row g-4">
+        {% for topic in topics %}
+        <div class="col-lg-4 col-md-6">
+            <div class="topic-card animate-fade-in" onclick="window.location.href='{% url 'core:topic_detail' topic.slug %}'">
+                <div class="topic-icon-wrapper" style="background: linear-gradient(135deg, {{ topic.color_start|default:'#667eea' }}, {{ topic.color_end|default:'#764ba2' }});">
+                    <i class="fas {{ topic.icon|default:'fa-leaf' }} topic-icon"></i>
+                </div>
+                <h3 class="topic-title">{{ topic.name }}</h3>
+                <p class="topic-description">{{ topic.description|truncatewords:20 }}</p>
+                <div class="topic-meta">
+                    <div class="meta-badge">
+                        <i class="fas fa-book-open"></i>
+                        <span>{{ topic.courses.count }} Courses</span>
+                    </div>
+                </div>
+                <a href="{% url 'core:topic_detail' topic.slug %}" class="btn btn-explore">
+                    <i class="fas fa-arrow-right me-2"></i>Explore Topic
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="card">
+        <div class="card-body empty-state">
+            <i class="fas fa-globe fa-5x text-muted mb-4"></i>
+            <h3 class="text-muted">No Topics Available</h3>
+            <p class="text-muted">Check back soon for new environmental topics!</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

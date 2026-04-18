@@ -1,0 +1,47 @@
+.teacher-dashboard .card {
+    border: 1px solid #e8ecf3;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.06);
+}
+
+.teacher-dashboard .teacher-stat h6 {
+    color: #6c757d;
+    margin-bottom: 0.25rem;
+}
+
+.teacher-dashboard .teacher-stat h3 {
+    margin: 0;
+    font-weight: 700;
+    color: #4f46e5;
+}
+
+.teacher-nav .nav-link {
+    border-radius: 20px;
+    padding: 0.5rem 1.1rem;
+    margin-right: 0.55rem;
+    margin-bottom: 0.55rem;
+    white-space: normal;
+    line-height: 1.2;
+    text-align: center;
+}
+
+.teacher-nav .nav-link.active {
+    background: linear-gradient(90deg, #667eea, #56ab2f);
+}
+
+@media (max-width: 767.98px) {
+    .teacher-nav .nav-item {
+        flex: 1 1 calc(50% - 0.55rem);
+    }
+
+    .teacher-nav .nav-link {
+        margin-right: 0;
+    }
+}
+
+.teacher-search-results {
+    border: 1px solid #e8ecf3;
+    border-radius: 10px;
+    background: #f8fafc;
+    padding: 0.75rem 1rem;
+}

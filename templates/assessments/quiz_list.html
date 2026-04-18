@@ -1,0 +1,417 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Environmental Quizzes - EcoLearn Platform{% endblock %}
+{% block body_class %}quiz-list-page-mnc{% endblock %}
+
+{% block extra_css %}
+<style>
+.quiz-list-page-mnc {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    min-height: 100vh;
+    padding: 0;
+    position: relative;
+    overflow-x: hidden;
+}
+
+.quiz-list-page-mnc::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(circle at 20% 50%, rgba(102, 126, 234, 0.2) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(240, 147, 251, 0.2) 0%, transparent 50%);
+    animation: gradient-shift 15s ease infinite;
+}
+
+@keyframes gradient-shift {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(50px, 50px) scale(1.1); }
+}
+
+.quiz-list-page-mnc .container {
+    position: relative;
+    z-index: 10;
+    padding-top: 3rem;
+    padding-bottom: 5rem;
+}
+
+.quiz-hero-section {
+    text-align: center;
+    color: white;
+    margin-bottom: 3rem;
+    animation: fadeInDown 0.6s ease-out;
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.quiz-hero-section h1 {
+    font-size: 3.5rem;
+    font-weight: 900;
+    margin-bottom: 1rem;
+    text-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    background: linear-gradient(135deg, #ffffff 0%, #ffd700 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.quiz-hero-section p {
+    font-size: 1.3rem;
+    opacity: 0.95;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
+/* Filter Pills */
+.nav-filter-btn {
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: 0.875rem 1.75rem;
+    border-radius: 60px;
+    font-weight: 700;
+    font-size: 1rem;
+    border: 2px solid rgba(255,255,255,0.3);
+    box-shadow: 
+        0 8px 32px rgba(0,0,0,0.15),
+        inset 0 1px 0 rgba(255,255,255,0.3);
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: white;
+    cursor: pointer;
+}
+
+.nav-filter-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+}
+
+.nav-filter-btn.active {
+    background: linear-gradient(135deg, #56ab2f, #a8e063);
+    color: white;
+    box-shadow: 
+        0 12px 40px rgba(86, 171, 47, 0.4),
+        inset 0 2px 0 rgba(255,255,255,0.3);
+}
+
+.filter-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 1.2rem;
+    margin-bottom: 3rem;
+    animation: fadeInUp 0.8s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.quiz-count-badge {
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: 0.875rem 1.75rem;
+    border-radius: 60px;
+    font-weight: 800;
+    font-size: 1.1rem;
+    border: 2px solid rgba(255,255,255,0.3);
+    box-shadow: 
+        0 8px 32px rgba(0,0,0,0.15),
+        inset 0 1px 0 rgba(255,255,255,0.3);
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Quiz Cards */
+.quiz-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 24px;
+    border: 1px solid rgba(255,255,255,0.3);
+    box-shadow: 
+        0 20px 60px rgba(0,0,0,0.15),
+        inset 0 1px 0 rgba(255,255,255,0.5);
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    animation: fadeInUp 1s ease-out;
+}
+
+.quiz-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 6px;
+    background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.quiz-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 
+        0 25px 60px rgba(102, 126, 234, 0.25),
+        0 0 0 1px rgba(102, 126, 234, 0.1);
+}
+
+.quiz-card:hover::before {
+    opacity: 1;
+}
+
+.quiz-header {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(240, 147, 251, 0.1));
+    padding: 1.5rem;
+    position: relative;
+}
+
+.quiz-type .badge {
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+}
+
+.quiz-icon {
+    background: white;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    transition: all 0.3s;
+}
+
+.quiz-card:hover .quiz-icon {
+    transform: scale(1.1) rotate(10deg);
+}
+
+.card-title {
+    font-size: 1.35rem;
+    font-weight: 900;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+}
+
+.card-text {
+    line-height: 1.7;
+    font-size: 0.95rem;
+}
+
+.quiz-meta {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(240, 147, 251, 0.05));
+    padding: 1rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+}
+
+.quiz-meta .row {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.quiz-points .badge {
+    padding: 0.6rem 1.25rem;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border: none;
+    padding: 0.875rem 1.75rem;
+    border-radius: 50px;
+    font-weight: 700;
+    transition: all 0.3s;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+    background: linear-gradient(135deg, #764ba2, #667eea);
+}
+
+@media (max-width: 768px) {
+    .quiz-hero-section h1 {
+        font-size: 2.5rem;
+    }
+    
+    .filter-container {
+        gap: 0.75rem;
+    }
+    
+    .nav-filter-btn {
+        font-size: 0.9rem;
+        padding: 0.75rem 1.25rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Hero Section -->
+    <div class="quiz-hero-section">
+        <h1>
+            <i class="fas fa-question-circle me-3"></i>Environmental Quizzes
+        </h1>
+        <p>Test your environmental knowledge and earn points through interactive quizzes</p>
+    </div>
+
+    <!-- Navigation Bar/Filters -->
+    <div class="filter-container">
+        <button class="nav-filter-btn active" data-type="all">
+            <i class="fas fa-th"></i>
+            <span>All Quizzes</span>
+        </button>
+        <button class="nav-filter-btn" data-type="knowledge">
+            <i class="fas fa-brain"></i>
+            <span>Knowledge Check</span>
+        </button>
+        <button class="nav-filter-btn" data-type="assessment">
+            <i class="fas fa-clipboard-check"></i>
+            <span>Course Assessment</span>
+        </button>
+        <button class="nav-filter-btn" data-type="challenge">
+            <i class="fas fa-fire"></i>
+            <span>Daily Challenge</span>
+        </button>
+        <button class="nav-filter-btn" data-type="competitive">
+            <i class="fas fa-trophy"></i>
+            <span>Competitive</span>
+        </button>
+        <div class="quiz-count-badge">
+            <i class="fas fa-check-circle"></i>
+            <span>{{ quizzes|length }} Quiz{% if quizzes|length != 1 %}zes{% endif %} Available</span>
+        </div>
+    </div>
+
+    <!-- Quiz Grid -->
+    <div class="row g-4">
+        {% for quiz in quizzes %}
+        <div class="col-xl-4 col-lg-6 col-md-6">
+            <div class="card quiz-card h-100 shadow-sm" data-type="{{ quiz.quiz_type }}">
+                <div class="quiz-header">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="quiz-type">
+                            <span class="badge bg-success">{{ quiz.get_quiz_type_display }}</span>
+                            <span class="badge bg-secondary ms-1">{{ quiz.get_difficulty_display }}</span>
+                            <span class="badge bg-{% if quiz.get_quiz_status == 'live' %}success{% elif quiz.get_quiz_status == 'scheduled' %}warning text-dark{% elif quiz.get_quiz_status == 'closed' %}secondary{% else %}dark{% endif %} ms-1">
+                                {{ quiz.get_quiz_status_display_label }}
+                            </span>
+                        </div>
+                        <div class="quiz-icon">
+                            <i class="fas fa-thermometer-full text-danger fa-lg"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">{{ quiz.title }}</h5>
+                    <p class="card-text text-muted flex-grow-1">{{ quiz.description }}</p>
+                    {% if quiz.get_quiz_status == 'scheduled' and quiz.scheduled_start_datetime %}
+                    <p class="small text-warning mb-2">
+                        <i class="fas fa-lock me-1"></i>Available on {{ quiz.scheduled_start_datetime|date:"M d, Y H:i" }}
+                    </p>
+                    {% elif quiz.get_quiz_status == 'closed' and quiz.scheduled_end_datetime %}
+                    <p class="small text-secondary mb-2">
+                        <i class="fas fa-ban me-1"></i>Quiz closed on {{ quiz.scheduled_end_datetime|date:"M d, Y H:i" }}
+                    </p>
+                    {% endif %}
+                    <div class="quiz-meta">
+                        <div class="row text-muted">
+                            <div class="col-6">
+                                <i class="fas fa-clock me-1"></i>{{ quiz.time_limit|default:'15' }} min
+                            </div>
+                            <div class="col-6">
+                                <i class="fas fa-question me-1"></i>{{ quiz.questions.count }} questions
+                            </div>
+                        </div>
+                        <div class="row text-muted mt-2">
+                            <div class="col-6">
+                                <i class="fas fa-percentage me-1"></i>{{ quiz.passing_score }}% to pass
+                            </div>
+                            <div class="col-6">
+                               <i class="fas fa-users me-1"></i>{{ quiz.unique_users_taken }} taken
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="quiz-points">
+                            <span class="badge bg-warning">
+                                <i class="fas fa-coins me-1"></i>{{ quiz.points_per_question }} pts/q
+                            </span>
+                            {% if quiz.bonus_points %}
+                                <span class="badge bg-success ms-1">+{{ quiz.bonus_points }} bonus</span>
+                            {% endif %}
+                        </div>
+                        <a href="{% url 'assessments:quiz_detail' quiz.pk %}" class="btn btn-primary">
+                            <i class="fas {% if quiz.get_quiz_status == 'live' %}fa-play{% else %}fa-lock{% endif %} me-1"></i>{% if quiz.get_quiz_status == 'live' %}Start Quiz{% else %}View Schedule{% endif %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info text-center" style="background: rgba(255,255,255,0.9); border: 2px solid rgba(102, 126, 234, 0.2); border-radius: 16px; padding: 2rem; color: #667eea; font-weight: 600;">
+                    <i class="fas fa-info-circle me-2"></i>No quizzes available.
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const btns = document.querySelectorAll('.nav-filter-btn');
+    btns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            btns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            const type = this.getAttribute('data-type');
+            document.querySelectorAll('.quiz-card').forEach(card => {
+                if (type === 'all' || card.getAttribute('data-type') === type) {
+                    card.parentElement.style.display = '';
+                } else {
+                    card.parentElement.style.display = 'none';
+                }
+            });
+        });
+    });
+});
+</script>
+{% endblock %}

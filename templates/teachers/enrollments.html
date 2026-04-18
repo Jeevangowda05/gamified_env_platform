@@ -1,0 +1,67 @@
+{% extends 'teachers/base.html' %}
+
+{% block title %}Student Enrollments{% endblock %}
+
+{% block teacher_content %}
+<div class="card">
+    <div class="card-header"><h5 class="mb-0">Enrollments and Progress</h5></div>
+    <div class="card-body border-bottom">
+        <form class="row g-2" method="get">
+            <div class="col-md-4">
+                <input type="search" class="form-control" name="q" value="{{ search_query }}" placeholder="Search students, courses, or quizzes...">
+            </div>
+            <div class="col-md-3">
+                <select name="type" class="form-select">
+                    <option value="">All Types</option>
+                    <option value="course" {% if selected_type == 'course' %}selected{% endif %}>Course</option>
+                    <option value="quiz" {% if selected_type == 'quiz' %}selected{% endif %}>Quiz</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="status" class="form-select">
+                    <option value="">All</option>
+                    <option value="enrolled" {% if selected_status == 'enrolled' %}selected{% endif %}>Enrolled</option>
+                    <option value="completed" {% if selected_status == 'completed' %}selected{% endif %}>Completed</option>
+                    <option value="in_progress" {% if selected_status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button class="btn btn-outline-primary w-100" type="submit">Filter</button>
+            </div>
+        </form>
+    </div>
+    <div class="table-responsive">
+        <table class="table mb-0">
+            <thead><tr><th>Student Name</th><th>Course/Quiz Name</th><th>Progress %</th><th>Status</th><th>Enrolled Date</th><th>Type</th></tr></thead>
+            <tbody>
+            {% for row in enrollment_rows %}
+                <tr>
+                    <td>{{ row.student_name }}</td>
+                    <td>{{ row.content_name }}</td>
+                    <td>{{ row.progress }}%</td>
+                    <td>
+                        {% if row.status == 'Completed' %}
+                        <span class="badge bg-success">Completed</span>
+                        {% elif row.status == 'In Progress' %}
+                        <span class="badge bg-warning text-dark">In Progress</span>
+                        {% else %}
+                        <span class="badge bg-secondary">Enrolled</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ row.enrolled_at|date:"Y-m-d" }}</td>
+                    <td>
+                        {% if row.type == 'quiz' %}
+                        <span class="badge bg-info text-dark">Quiz</span>
+                        {% else %}
+                        <span class="badge bg-primary">Course</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="6" class="text-center text-muted py-4">No enrollments found.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

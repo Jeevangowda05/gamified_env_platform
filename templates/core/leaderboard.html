@@ -1,0 +1,343 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Leaderboard - EcoLearn Platform{% endblock %}
+{% block body_class %}leaderboard-page{% endblock %}
+
+{% block extra_css %}
+<style>
+.leaderboard-page {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding-bottom: 3rem;
+}
+
+.leaderboard-header {
+    padding: 80px 0 40px;
+    color: white;
+    text-align: center;
+}
+
+.header-title {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    text-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.header-subtitle {
+    font-size: 1.2rem;
+    opacity: 0.9;
+}
+
+.podium-section {
+    margin-bottom: 3rem;
+}
+
+.podium-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.podium-place {
+    text-align: center;
+    animation: fadeInUp 0.8s ease-out forwards;
+    opacity: 0;
+}
+
+.podium-place:nth-child(1) { animation-delay: 0.2s; }
+.podium-place:nth-child(2) { animation-delay: 0s; }
+.podium-place:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.podium-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    margin: 0 auto 1rem;
+    position: relative;
+    background: white;
+    padding: 5px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.podium-rank-1 .podium-avatar {
+    width: 120px;
+    height: 120px;
+    border: 4px solid #ffd700;
+}
+
+.podium-rank-2 .podium-avatar {
+    border: 4px solid #c0c0c0;
+}
+
+.podium-rank-3 .podium-avatar {
+    border: 4px solid #cd7f32;
+}
+
+.podium-medal {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.podium-rank-1 .podium-medal {
+    background: linear-gradient(135deg, #ffd700, #ffed4e);
+}
+
+.podium-rank-2 .podium-medal {
+    background: linear-gradient(135deg, #c0c0c0, #e8e8e8);
+}
+
+.podium-rank-3 .podium-medal {
+    background: linear-gradient(135deg, #cd7f32, #e09856);
+}
+
+.podium-name {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 0.5rem;
+}
+
+.podium-points {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #ffd700;
+    margin-bottom: 0.5rem;
+}
+
+.podium-institution {
+    font-size: 0.9rem;
+    color: rgba(255,255,255,0.8);
+}
+
+.leaderboard-table-card {
+    background: white;
+    border-radius: 24px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    overflow: hidden;
+}
+
+.table-responsive {
+    border-radius: 24px;
+}
+
+.leaderboard-table {
+    margin-bottom: 0;
+}
+
+.leaderboard-table thead {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.leaderboard-table thead th {
+    border: none;
+    padding: 1.25rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+}
+
+.leaderboard-table tbody tr {
+    transition: all 0.3s;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.leaderboard-table tbody tr:hover {
+    background: rgba(102, 126, 234, 0.05);
+    transform: scale(1.01);
+}
+
+.leaderboard-table tbody tr.user-row {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 179, 71, 0.1));
+    font-weight: 700;
+}
+
+.leaderboard-table tbody td {
+    padding: 1.25rem;
+    vertical-align: middle;
+}
+
+.rank-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-weight: 800;
+    font-size: 1.1rem;
+}
+
+.rank-1 { background: linear-gradient(135deg, #ffd700, #ffed4e); color: #2c3e50; }
+.rank-2 { background: linear-gradient(135deg, #c0c0c0, #e8e8e8); color: #2c3e50; }
+.rank-3 { background: linear-gradient(135deg, #cd7f32, #e09856); color: white; }
+.rank-other { background: rgba(102, 126, 234, 0.1); color: #667eea; }
+
+.user-avatar-small {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    margin-right: 1rem;
+    border: 3px solid #667eea;
+}
+
+.level-badge {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 0.4rem 0.8rem;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+
+.points-display {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #667eea;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 5rem 2rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="leaderboard-header">
+    <div class="container">
+        <h1 class="header-title">🏆 Leaderboard</h1>
+        <p class="header-subtitle">See how you rank among environmental learning champions</p>
+    </div>
+</div>
+
+<div class="container">
+    {% if leaderboard %}
+    <!-- Top 3 Podium -->
+    {% with podium=leaderboard|slice:":3" %}
+    {% if podium|length >= 3 %}
+    <div class="podium-section">
+        <div class="podium-container">
+            <!-- 2nd Place -->
+            <div class="podium-place podium-rank-2">
+                <div class="podium-avatar">
+                    <img src="{% if podium.1.user.avatar %}{{ podium.1.user.avatar.url }}{% else %}{% static 'images/avatars/default.png' %}{% endif %}"
+                         alt="{{ podium.1.full_name }}"
+                         class="w-100 h-100 rounded-circle" style="object-fit:cover;">
+                    <div class="podium-medal">🥈</div>
+                </div>
+                <div class="podium-name">{{ podium.1.full_name }}</div>
+                <div class="podium-points">{{ podium.1.points }} pts</div>
+                <div class="podium-institution">{{ podium.1.institution|default:"—" }}</div>
+            </div>
+            <!-- 1st Place -->
+            <div class="podium-place podium-rank-1">
+                <div class="podium-avatar">
+                    <img src="{% if podium.0.user.avatar %}{{ podium.0.user.avatar.url }}{% else %}{% static 'images/avatars/default.png' %}{% endif %}"
+                         alt="{{ podium.0.full_name }}"
+                         class="w-100 h-100 rounded-circle" style="object-fit:cover;">
+                    <div class="podium-medal">🥇</div>
+                </div>
+                <div class="podium-name">{{ podium.0.full_name }}</div>
+                <div class="podium-points">{{ podium.0.points }} pts</div>
+                <div class="podium-institution">{{ podium.0.institution|default:"—" }}</div>
+            </div>
+            <!-- 3rd Place -->
+            <div class="podium-place podium-rank-3">
+                <div class="podium-avatar">
+                    <img src="{% if podium.2.user.avatar %}{{ podium.2.user.avatar.url }}{% else %}{% static 'images/avatars/default.png' %}{% endif %}"
+                         alt="{{ podium.2.full_name }}"
+                         class="w-100 h-100 rounded-circle" style="object-fit:cover;">
+                    <div class="podium-medal">🥉</div>
+                </div>
+                <div class="podium-name">{{ podium.2.full_name }}</div>
+                <div class="podium-points">{{ podium.2.points }} pts</div>
+                <div class="podium-institution">{{ podium.2.institution|default:"—" }}</div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <div class="leaderboard-table-card">
+        <div class="table-responsive">
+            <table class="table leaderboard-table">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Student</th>
+                        <th>Institution</th>
+                        <th>Points</th>
+                        <th>Level</th>
+                        <th>Badges</th>
+                        <th>Courses</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in leaderboard %}
+                    <tr {% if user.id == entry.user.id %}class="user-row"{% endif %}>
+                        <td>
+                            <span class="rank-badge {% if entry.rank == 1 %}rank-1{% elif entry.rank == 2 %}rank-2{% elif entry.rank == 3 %}rank-3{% else %}rank-other{% endif %}">
+                                {{ entry.rank }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{% url 'core:public_profile' entry.user.username %}" class="d-flex align-items-center text-decoration-none text-dark">
+                                <img src="{% if entry.user.avatar %}{{ entry.user.avatar.url }}{% else %}{% static 'images/avatars/default.png' %}{% endif %}"
+                                     alt="{{ entry.full_name }}"
+                                     class="user-avatar-small" style="object-fit:cover;">
+                                <div>
+                                    <div class="fw-bold">{{ entry.full_name }}</div>
+                                    {% if user.id == entry.user.id %}
+                                    <small class="text-success"><i class="fas fa-check-circle"></i> You</small>
+                                    {% endif %}
+                                </div>
+                            </a>
+                        </td>
+                        <td>{{ entry.institution|default:"—" }}</td>
+                        <td><span class="points-display">{{ entry.points }}</span></td>
+                        <td><span class="level-badge">Level {{ entry.level }}</span></td>
+                        <td><i class="fas fa-medal text-warning me-1"></i>{{ entry.badges }}</td>
+                        <td><i class="fas fa-graduation-cap text-success me-1"></i>{{ entry.courses_completed }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="leaderboard-table-card">
+        <div class="empty-state">
+            <i class="fas fa-trophy fa-5x text-muted mb-4"></i>
+            <h3 class="text-muted">No Rankings Yet</h3>
+            <p class="text-muted">Be the first to earn points and climb the leaderboard!</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

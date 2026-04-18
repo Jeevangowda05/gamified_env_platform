@@ -1,0 +1,9 @@
+/* Gradient text utilities */
+.gradient-text {
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+}
+
+/* Update any elements using webkit-background-clip directly to use this class instead */

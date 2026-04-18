@@ -1,0 +1,194 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ quiz.title }} - EcoLearn Quiz</title>
+    <link rel="stylesheet" href="{% static 'assessments/css/quiz.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="quiz-layout">
+        <!-- LEFT SIDE: Quiz Container -->
+        <div class="quiz-main-section">
+            <div class="quiz-container">
+                <!-- Header with Progress -->
+                <div class="quiz-header">
+                    <div class="quiz-info">
+                        <h1 class="quiz-title">
+                            <i class="fas fa-leaf"></i>
+                            {{ quiz.title }}
+                        </h1>
+                        <p class="quiz-category">
+                            <span class="badge badge-{{ quiz.difficulty }}">{{ quiz.get_difficulty_display }}</span>
+                            <span class="quiz-type">{{ quiz.get_quiz_type_display }}</span>
+                        </p>
+                    </div>
+                    <div class="timer-container" id="timer">
+                        <i class="fas fa-clock"></i>
+                        <span id="time-remaining">{{ quiz.time_limit }}:00</span>
+                    </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="progress-wrapper">
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+                    </div>
+                    <div class="progress-info">
+                        <span class="question-counter">
+                            Question <span id="currentQuestion">1</span> of <span id="totalQuestions">{{ questions|length }}</span>
+                        </span>
+                        <span class="points-earned">
+                            <i class="fas fa-star"></i>
+                            <span id="pointsEarned">0</span> points
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Question Card -->
+                <div class="question-container" id="questionContainer">
+                    {% for question in questions %}
+                    <div class="question-card {% if forloop.first %}active{% endif %}" data-question="{{ forloop.counter }}" data-question-id="{{ question.id }}">
+                        <div class="question-header">
+                            <span class="question-number">Question {{ forloop.counter }}</span>
+                            <span class="question-points">
+                                <i class="fas fa-trophy"></i>
+                                {{ question.points }} points
+                            </span>
+                        </div>
+                        
+                        <div class="question-text">
+                            <p>{{ question.question_text }}</p>
+                        </div>
+
+                        <div class="options-container">
+                            <div class="option" data-answer="A">
+                                <div class="option-letter">A</div>
+                                <div class="option-content">
+                                    <p>{{ question.option_a }}</p>
+                                </div>
+                                <div class="option-check">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                            </div>
+
+                            <div class="option" data-answer="B">
+                                <div class="option-letter">B</div>
+                                <div class="option-content">
+                                    <p>{{ question.option_b }}</p>
+                                </div>
+                                <div class="option-check">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                            </div>
+
+                            <div class="option" data-answer="C">
+                                <div class="option-letter">C</div>
+                                <div class="option-content">
+                                    <p>{{ question.option_c }}</p>
+                                </div>
+                                <div class="option-check">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                            </div>
+
+                            <div class="option" data-answer="D">
+                                <div class="option-letter">D</div>
+                                <div class="option-content">
+                                    <p>{{ question.option_d }}</p>
+                                </div>
+                                <div class="option-check">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <input type="hidden" class="correct-answer" value="{{ question.correct_answer }}">
+                        <input type="hidden" class="question-points-value" value="{{ question.points }}">
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Navigation Buttons -->
+                <div class="quiz-navigation">
+                    <button class="btn btn-secondary" id="prevBtn" onclick="previousQuestion()" disabled>
+                        <i class="fas fa-arrow-left"></i>
+                        Previous
+                    </button>
+                    <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()">
+                        Next
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                    <button class="btn btn-success" id="submitBtn" onclick="submitQuiz()" style="display: none;">
+                        <i class="fas fa-check"></i>
+                        Submit Quiz
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT SIDE: Question Navigator -->
+        <div class="quiz-sidebar">
+            <div class="sidebar-header">
+                <h3>Questions</h3>
+                <p class="answered-count">
+                    Answered: <span id="answeredCount">0</span>/{{ questions|length }}
+                </p>
+            </div>
+            
+            <div class="question-grid" id="questionGrid">
+                {% for question in questions %}
+                <button class="question-nav-btn" data-question="{{ forloop.counter }}" onclick="jumpToQuestion({{ forloop.counter }})">
+                    {{ forloop.counter }}
+                </button>
+                {% endfor %}
+            </div>
+
+            <button class="btn btn-success sidebar-submit" onclick="submitQuiz()">
+                <i class="fas fa-paper-plane"></i>
+                Submit Quiz
+            </button>
+        </div>
+    </div>
+
+    <!-- Quiz Results Modal -->
+    <div class="modal" id="resultsModal">
+        <div class="modal-content">
+            <div class="results-icon">
+                <i class="fas fa-trophy"></i>
+            </div>
+            <h2 class="results-title">Quiz Completed!</h2>
+            <div class="results-stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="finalScore">0</div>
+                    <div class="stat-label">Score</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="correctAnswers">0</div>
+                    <div class="stat-label">Correct</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="totalPoints">0</div>
+                    <div class="stat-label">Points</div>
+                </div>
+            </div>
+            <div class="results-actions">
+                <a href="{% url 'assessments:quiz_list' %}" class="btn btn-primary">
+                    <i class="fas fa-home"></i>
+                    Back to Quizzes
+                </a>
+                <button class="btn btn-secondary" onclick="reviewAnswers()">
+                    <i class="fas fa-eye"></i>
+                    Review Answers
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'assessments/js/quiz.js' %}"></script>
+</body>
+</html>

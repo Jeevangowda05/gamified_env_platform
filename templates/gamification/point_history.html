@@ -1,0 +1,647 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Point History - EcoLearn Platform{% endblock %}
+{% block body_class %}point-history-page{% endblock %}
+
+{% block extra_css %}
+<style>
+.point-history-page {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    min-height: 100vh;
+    padding: 0;
+    position: relative;
+    overflow-x: hidden;
+}
+
+.point-history-page::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(circle at 20% 50%, rgba(102, 126, 234, 0.2) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(240, 147, 251, 0.2) 0%, transparent 50%);
+    animation: gradient-shift 15s ease infinite;
+}
+
+@keyframes gradient-shift {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(50px, 50px) scale(1.1); }
+}
+
+.history-hero {
+    position: relative;
+    z-index: 10;
+    padding: 5rem 0 3rem;
+    color: white;
+}
+
+.hero-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 2rem;
+}
+
+.hero-title-section h1 {
+    font-size: 3.5rem;
+    font-weight: 900;
+    margin-bottom: 1rem;
+    text-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    background: linear-gradient(135deg, #ffffff 0%, #ffd700 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hero-title-section p {
+    font-size: 1.3rem;
+    opacity: 0.95;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
+.current-points-pill {
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: 1.2rem 2.5rem;
+    border-radius: 60px;
+    font-weight: 800;
+    font-size: 1.5rem;
+    border: 2px solid rgba(255,255,255,0.3);
+    box-shadow: 
+        0 8px 32px rgba(0,0,0,0.15),
+        inset 0 1px 0 rgba(255,255,255,0.3);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    animation: glow 2s ease-in-out infinite;
+}
+
+@keyframes glow {
+    0%, 100% { box-shadow: 0 8px 32px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.3); }
+    50% { box-shadow: 0 12px 40px rgba(86, 171, 47, 0.4), inset 0 1px 0 rgba(255,255,255,0.5); }
+}
+
+.current-points-pill i {
+    font-size: 2rem;
+    animation: coin-flip 3s ease-in-out infinite;
+}
+
+@keyframes coin-flip {
+    0%, 100% { transform: rotateY(0deg); }
+    50% { transform: rotateY(180deg); }
+}
+
+.content-container {
+    position: relative;
+    z-index: 10;
+    padding: 3rem 0 5rem;
+}
+
+.stats-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 24px;
+    border: 1px solid rgba(255,255,255,0.3);
+    box-shadow: 
+        0 20px 60px rgba(0,0,0,0.15),
+        inset 0 1px 0 rgba(255,255,255,0.5);
+    overflow: hidden;
+    animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.card-header {
+    background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+    color: white;
+    padding: 1.5rem;
+    border: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.card-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    animation: rotate 10s linear infinite;
+}
+
+@keyframes rotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.card-header h5 {
+    margin: 0;
+    font-weight: 800;
+    font-size: 1.2rem;
+    position: relative;
+    z-index: 1;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
+.card-header.bg-info {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.card-header.bg-warning {
+    background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+}
+
+.card-body {
+    padding: 2rem;
+}
+
+.stat-item {
+    padding: 1rem 0;
+    border-bottom: 2px solid rgba(0,0,0,0.05);
+    transition: all 0.3s;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.stat-item:last-child {
+    border-bottom: none;
+}
+
+.stat-item:hover {
+    background: linear-gradient(90deg, rgba(86, 171, 47, 0.05), transparent);
+    padding-left: 1rem;
+    padding-right: 1rem;
+    margin-left: -1rem;
+    margin-right: -1rem;
+    border-radius: 12px;
+}
+
+.stat-item i {
+    font-size: 1.3rem;
+    margin-right: 0.75rem;
+}
+
+.stat-item .fw-bold {
+    font-size: 1.5rem;
+    font-weight: 800;
+}
+
+.source-item {
+    padding: 1rem 0;
+    transition: all 0.3s;
+}
+
+.source-item:hover {
+    transform: translateX(5px);
+}
+
+.progress {
+    height: 8px;
+    border-radius: 10px;
+    background: rgba(0,0,0,0.05);
+    overflow: hidden;
+}
+
+.progress-bar {
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    animation: progressLoad 1s ease-out;
+}
+
+@keyframes progressLoad {
+    0% { width: 0; }
+}
+
+.btn-outline-primary, .btn-outline-success, .btn-outline-warning {
+    border: 2px solid;
+    border-radius: 50px;
+    padding: 0.875rem 1.5rem;
+    font-weight: 700;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-outline-primary::before,
+.btn-outline-success::before,
+.btn-outline-warning::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.5s, height 0.5s;
+}
+
+.btn-outline-primary:hover::before,
+.btn-outline-success:hover::before,
+.btn-outline-warning:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.btn-outline-primary:hover {
+    background: #667eea;
+    border-color: #667eea;
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+}
+
+.btn-outline-success:hover {
+    background: #28a745;
+    border-color: #28a745;
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(40, 167, 69, 0.3);
+}
+
+.btn-outline-warning:hover {
+    background: #ffc107;
+    border-color: #ffc107;
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(255, 193, 7, 0.3);
+}
+
+.transaction-filters .btn-group {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border-radius: 50px;
+    overflow: hidden;
+}
+
+.transaction-filters .btn {
+    border-radius: 0;
+    padding: 0.75rem 1.5rem;
+    font-weight: 700;
+    border: none;
+    transition: all 0.3s;
+}
+
+.transaction-filters .btn.active {
+    background: linear-gradient(135deg, #56ab2f, #a8e063);
+    color: white;
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.transaction-item {
+    display: flex;
+    align-items: center;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    background: white;
+    border-radius: 16px;
+    border: 2px solid rgba(0,0,0,0.05);
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.transaction-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.transaction-item:hover {
+    transform: translateX(8px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    border-color: rgba(102, 126, 234, 0.3);
+}
+
+.transaction-item:hover::before {
+    opacity: 1;
+}
+
+.transaction-item[data-transaction-type="earned"]::before {
+    background: linear-gradient(135deg, #56ab2f, #a8e063);
+}
+
+.transaction-item[data-transaction-type="bonus"]::before {
+    background: linear-gradient(135deg, #ffc107, #ff9800);
+}
+
+.icon-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    box-shadow: 
+        0 8px 25px rgba(0,0,0,0.15),
+        inset 0 1px 0 rgba(255,255,255,0.3);
+    transition: all 0.3s;
+    position: relative;
+}
+
+.icon-circle::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: inherit;
+    filter: blur(15px);
+    opacity: 0.4;
+    z-index: -1;
+}
+
+.transaction-item:hover .icon-circle {
+    transform: scale(1.1) rotate(10deg);
+}
+
+.transaction-reason {
+    font-size: 1.1rem;
+    color: #2c3e50;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.transaction-meta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.9rem;
+}
+
+.points-value {
+    font-size: 1.8rem;
+    font-weight: 900;
+    line-height: 1;
+}
+
+.alert-info {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+    border: 2px solid rgba(102, 126, 234, 0.2);
+    border-radius: 16px;
+    padding: 2rem;
+    color: #667eea;
+    font-weight: 600;
+}
+
+@media (max-width: 992px) {
+    .hero-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .hero-title-section h1 {
+        font-size: 2.5rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="history-hero">
+    <div class="container">
+        <div class="hero-content">
+            <div class="hero-title-section">
+                <h1>
+                    <i class="fas fa-history me-3"></i>Point History
+                </h1>
+                <p>Track all your point earnings and environmental impact</p>
+            </div>
+            <div class="current-points-pill">
+                <i class="fas fa-coins text-warning"></i>
+                <span>{{ point_stats.total_points|default:0 }} Points</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="content-container">
+    <div class="container">
+        <div class="row">
+            <!-- Point Statistics -->
+            <div class="col-lg-4 mb-4">
+                <div class="stats-card">
+                    <div class="card-header">
+                        <h5>
+                            <i class="fas fa-chart-pie me-2"></i>Point Statistics
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="stat-item">
+                            <div>
+                                <i class="fas fa-coins text-success"></i>Total Points
+                            </div>
+                            <span class="fw-bold text-success">{{ point_stats.total_points|default:0 }}</span>
+                        </div>
+                        <div class="stat-item">
+                            <div>
+                                <i class="fas fa-arrow-up text-primary"></i>This Week
+                            </div>
+                            <span class="fw-bold text-primary">{{ point_stats.earned_points|default:0 }}</span>
+                        </div>
+                        <div class="stat-item">
+                            <div>
+                                <i class="fas fa-gift text-warning"></i>Bonus Points
+                            </div>
+                            <span class="fw-bold text-warning">{{ point_stats.bonus_points|default:0 }}</span>
+                        </div>
+                        <div class="stat-item">
+                            <div>
+                                <i class="fas fa-exchange-alt text-info"></i>Total Transactions
+                            </div>
+                            <span class="fw-bold">{{ point_stats.transactions_count|default:0 }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Point Sources -->
+                <div class="stats-card mt-4">
+                    <div class="card-header bg-info">
+                        <h5>
+                            <i class="fas fa-chart-donut me-2"></i>Point Sources
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="source-item">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div>
+                                    <i class="fas fa-graduation-cap text-info me-2"></i>Course Completion
+                                </div>
+                                <div class="fw-bold">{{ point_breakdown.course_points|default:0 }}</div>
+                            </div>
+                            <div class="progress">
+                                <div class="progress-bar bg-info" style="width: 100%"></div>
+                            </div>
+                        </div>
+                        <div class="source-item">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div>
+                                    <i class="fas fa-question-circle text-success me-2"></i>Quiz Performance
+                                </div>
+                                <div class="fw-bold">{{ point_breakdown.quiz_points|default:0 }}</div>
+                            </div>
+                            <div class="progress">
+                                <div class="progress-bar bg-success" style="width: 100%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Earn More Points -->
+                <div class="stats-card mt-4">
+                    <div class="card-header bg-warning">
+                        <h5>
+                            <i class="fas fa-bolt me-2"></i>Earn More Points
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-3">
+                            <a href="{% url 'core:course_list' %}" class="btn btn-outline-primary">
+                                <i class="fas fa-book me-2"></i>Complete Courses
+                                <span class="badge bg-primary ms-2">+150 pts</span>
+                            </a>
+                            <a href="{% url 'assessments:quiz_list' %}" class="btn btn-outline-success">
+                                <i class="fas fa-question-circle me-2"></i>Take Quizzes
+                                <span class="badge bg-success ms-2">+50 pts</span>
+                            </a>
+                            <a href="{% url 'gamification:badges' %}" class="btn btn-outline-warning">
+                                <i class="fas fa-medal me-2"></i>Earn Badges
+                                <span class="badge bg-warning ms-2">+100 pts</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transaction History -->
+            <div class="col-lg-8">
+                <div class="stats-card">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5>
+                                <i class="fas fa-list me-2"></i>Transaction History
+                            </h5>
+                            <div class="transaction-filters">
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn btn-outline-success active" data-filter="all">All</button>
+                                    <button type="button" class="btn btn-outline-success" data-filter="earned">Earned</button>
+                                    <button type="button" class="btn btn-outline-success" data-filter="bonus">Bonus</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="transaction-list">
+                            {% if transactions %}
+                                {% for transaction in transactions %}
+                                    <div class="transaction-item" data-transaction-type="{{ transaction.transaction_type }}">
+                                        <div class="transaction-icon me-3">
+                                            <div class="icon-circle 
+                                                    {% if transaction.transaction_type == 'earned' %}bg-success
+                                                    {% elif transaction.transaction_type == 'bonus' %}bg-warning
+                                                    {% else %}bg-secondary{% endif %} text-white">
+                                                {% if transaction.related_content_type == 'course' %}
+                                                    <i class="fas fa-graduation-cap"></i>
+                                                {% elif transaction.related_content_type == 'quiz' %}
+                                                    <i class="fas fa-question-circle"></i>
+                                                {% elif transaction.related_content_type == 'badge' %}
+                                                    <i class="fas fa-medal"></i>
+                                                {% else %}
+                                                    <i class="fas fa-coins"></i>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="transaction-details flex-grow-1">
+                                            <div class="transaction-reason">
+                                                {% if transaction.related_content_type == "quiz" %}
+                                                    <span class="text-success">Quiz Completion</span> -
+                                                {% elif transaction.related_content_type == "course" %}
+                                                    <span class="text-info">Course Completion</span> -
+                                                {% elif transaction.related_content_type == "badge" %}
+                                                    <span class="text-warning">Badge</span> -
+                                                {% endif %}
+                                                {{ transaction.reason }}
+                                            </div>
+                                            <div class="transaction-meta text-muted">
+                                                <span>{{ transaction.created_at|date:"M d, Y @ h:i A" }}</span>
+                                                {% if transaction.related_content_type %}
+                                                    <span>| {{ transaction.related_content_type|capfirst }}</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="transaction-points text-end">
+                                            <div class="points-value 
+                                                {% if transaction.transaction_type == 'bonus' %}text-warning
+                                                {% elif transaction.transaction_type == 'earned' %}text-success
+                                                {% else %}text-secondary{% endif %}">
+                                                {% if transaction.points > 0 %}+{% endif %}{{ transaction.points }}
+                                            </div>
+                                            <small class="text-muted">points</small>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    No transactions to display yet. Start learning to earn points!
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const filterButtons = document.querySelectorAll('[data-filter]');
+    const transactions = document.querySelectorAll('[data-transaction-type]');
+    
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const filter = this.dataset.filter;
+            
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            
+            transactions.forEach(transaction => {
+                const transactionType = transaction.dataset.transactionType;
+                if (filter === 'all' || transactionType === filter) {
+                    transaction.style.display = 'flex';
+                } else {
+                    transaction.style.display = 'none';
+                }
+            });
+        });
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,260 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Environmental Courses - EcoLearn Platform{% endblock %}
+{% block body_class %}courses-page{% endblock %}
+
+{% block extra_css %}
+<style>
+.courses-page {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+}
+
+.courses-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 80px 0 60px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.courses-header::before {
+    content: '';
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    top: -100px;
+    right: -100px;
+    animation: float 20s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(-30px, 30px); }
+}
+
+.page-title {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    text-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.page-subtitle {
+    font-size: 1.2rem;
+    opacity: 0.95;
+}
+
+.course-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 1px solid rgba(0,0,0,0.05);
+    height: 100%;
+    position: relative;
+}
+
+.course-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    transform: scaleX(0);
+    transition: transform 0.3s;
+}
+
+.course-card:hover::before {
+    transform: scaleX(1);
+}
+
+.course-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 25px 60px rgba(102, 126, 234, 0.25);
+}
+
+.course-image {
+    height: 220px;
+    overflow: hidden;
+    position: relative;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+.course-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s;
+}
+
+.course-card:hover .course-image img {
+    transform: scale(1.1);
+}
+
+.course-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(10px);
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: #667eea;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.course-body {
+    padding: 2rem;
+}
+
+.course-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: #2c3e50;
+    line-height: 1.4;
+}
+
+.course-description {
+    color: #6c757d;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.course-meta {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.meta-item i {
+    color: #667eea;
+}
+
+.btn-view-course {
+    width: 100%;
+    padding: 0.875rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-view-course:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    color: white;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 5rem 2rem;
+}
+
+.empty-state i {
+    font-size: 5rem;
+    color: #667eea;
+    opacity: 0.3;
+    margin-bottom: 2rem;
+}
+
+.animate-fade-in {
+    animation: fadeInUp 0.6s ease-out forwards;
+    opacity: 0;
+}
+
+.animate-fade-in:nth-child(1) { animation-delay: 0.1s; }
+.animate-fade-in:nth-child(2) { animation-delay: 0.2s; }
+.animate-fade-in:nth-child(3) { animation-delay: 0.3s; }
+.animate-fade-in:nth-child(4) { animation-delay: 0.4s; }
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="courses-header">
+    <div class="container">
+        <div class="text-center">
+            <h1 class="page-title">Environmental Courses</h1>
+            <p class="page-subtitle">Discover comprehensive courses on environmental sustainability</p>
+        </div>
+    </div>
+</div>
+
+<div class="container py-5">
+    {% if courses %}
+    <div class="row g-4">
+        {% for course in courses %}
+        <div class="col-lg-4 col-md-6">
+            <div class="course-card animate-fade-in">
+                <div class="course-image">
+                    {% if course.image %}
+                        <img src="{{ course.image.url }}" alt="{{ course.title }}">
+                    {% else %}
+                        <div class="d-flex align-items-center justify-content-center h-100">
+                            <i class="fas fa-leaf fa-4x text-white opacity-50"></i>
+                        </div>
+                    {% endif %}
+                    <div class="course-badge">
+                        <i class="fas fa-book-open me-1"></i>
+                        {{ course.modules.count }} Modules
+                    </div>
+                </div>
+                <div class="course-body">
+                    <h3 class="course-title">{{ course.title }}</h3>
+                    <p class="course-description">{{ course.description|truncatewords:20 }}</p>
+                    <div class="course-meta">
+                        <div class="meta-item">
+                            <i class="fas fa-layer-group"></i>
+                            <span>{{ course.topic.name|default:"Environmental" }}</span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="fas fa-clock"></i>
+                            <span>{{ course.duration|default:"Self-paced" }}</span>
+                        </div>
+                    </div>
+                    <a href="{% url 'core:course_detail' course.slug %}" class="btn btn-view-course">
+                        <i class="fas fa-arrow-right me-2"></i>View Course
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-book-open"></i>
+        <h3 class="text-muted mb-3">No Courses Available Yet</h3>
+        <p class="text-muted">Check back soon for new environmental courses!</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'teachers/css/teachers.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'teachers/js/teachers.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+
+
+<div class="container py-4 teacher-dashboard">
+    <!-- Welcome Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="welcome-card">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h1 class="welcome-title">
+                            Welcome back, {{ user.first_name|default:user.username }}! 🌱
+                        </h1>     <h1 class="h3 mb-1">Teacher Dashboard</h1>
+            <p class="text-muted mb-0">Manage courses, quizzes, enrollments, and analytics</p>                         
+                            <p class="welcome-subtitle mb-4">
+                            Continue your environmental learning journey and make a positive impact on our planet.
+                        </p>
+                        
+                    </div>
+                   
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row g-2 align-items-center">
+                <div class="col-md-6">
+                    <input type="search" id="teacherSearchInput" class="form-control" placeholder="Search courses, quizzes, students...">
+                </div>
+                <div class="col-md-2">
+                    <select id="teacherSearchTopic" class="form-select">
+                        <option value="">Topic</option>
+                        {% for topic in topics %}
+                        <option value="{{ topic.slug }}">{{ topic.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select id="teacherSearchDifficulty" class="form-select">
+                        <option value="">Difficulty</option>
+                        <option value="easy">Easy</option>
+                        <option value="medium">Medium</option>
+                        <option value="hard">Hard</option>
+                        <option value="expert">Expert</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select id="teacherSearchStatus" class="form-select">
+                        <option value="">Status</option>
+                        <option value="completed">Completed</option>
+                        <option value="in_progress">In Progress</option>
+                    </select>
+                </div>
+            </div>
+            <div id="teacherSearchResults" class="teacher-search-results d-none mt-3"></div>
+        </div>
+    </div>
+
+    {% block teacher_content %}{% endblock %}
+</div>
+{% endblock %}

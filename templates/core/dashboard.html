@@ -1,0 +1,724 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - EcoLearn Platform{% endblock %}
+{% block body_class %}dashboard-page{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<style>
+.dashboard-page {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding-bottom: 3rem;
+}
+
+.welcome-card {
+    background: linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.95) 100%);
+    backdrop-filter: blur(30px);
+    border-radius: 28px;
+    padding: 3rem;
+    margin-bottom: 2.5rem;
+    box-shadow: 0 25px 70px rgba(0,0,0,0.18);
+    border: 1px solid rgba(255,255,255,0.4);
+    position: relative;
+    overflow: hidden;
+}
+
+.welcome-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 450px;
+    height: 450px;
+    background: linear-gradient(135deg, rgba(102,126,234,0.12), rgba(118,75,162,0.12));
+    border-radius: 50%;
+    animation: float 15s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(30px, 30px); }
+}
+
+.welcome-title {
+    font-size: 2.5rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.85rem;
+}
+
+.welcome-subtitle {
+    color: #6c757d;
+    font-size: 1.15rem;
+    line-height: 1.6;
+}
+
+.quick-stats span {
+    background: linear-gradient(135deg, rgba(102,126,234,0.12), rgba(118,75,162,0.08));
+    padding: 0.85rem 1.4rem;
+    border-radius: 50px;
+    font-weight: 700;
+    color: #495057;
+    transition: all 0.4s;
+    border: 2px solid transparent;
+}
+
+.quick-stats span:hover {
+    background: linear-gradient(135deg, rgba(102,126,234,0.25), rgba(118,75,162,0.2));
+    transform: translateY(-3px);
+    border-color: rgba(102,126,234,0.3);
+    box-shadow: 0 8px 20px rgba(102,126,234,0.2);
+}
+
+.stat-card {
+    background: white;
+    border-radius: 24px;
+    padding: 2.5rem;
+    box-shadow: 0 12px 35px rgba(0,0,0,0.1);
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    height: 100%;
+    border: 2px solid rgba(0,0,0,0.05);
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 6px;
+    background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
+    transform: scaleX(0);
+    transition: transform 0.4s;
+}
+
+.stat-card:hover::before {
+    transform: scaleX(1);
+}
+
+.stat-card:hover {
+    transform: translateY(-12px) scale(1.03);
+    box-shadow: 0 25px 60px rgba(102,126,234,0.25);
+    border-color: rgba(102,126,234,0.2);
+}
+
+.stat-number {
+    font-size: 3.5rem;
+    font-weight: 900;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: countUp 1.5s ease-out;
+}
+
+@keyframes countUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.stat-label {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #6c757d;
+}
+
+.stat-icon {
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    box-shadow: 0 10px 30px rgba(102,126,234,0.35);
+    transition: all 0.3s;
+}
+
+.stat-card:hover .stat-icon {
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 15px 40px rgba(102,126,234,0.5);
+}
+
+/* Progress indicator below stats */
+.stat-progress {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: linear-gradient(135deg, rgba(102,126,234,0.08), rgba(118,75,162,0.05));
+    border-radius: 12px;
+    margin-top: 1.25rem;
+    transition: all 0.3s;
+}
+
+.stat-progress:hover {
+    background: linear-gradient(135deg, rgba(102,126,234,0.15), rgba(118,75,162,0.1));
+}
+
+.stat-progress i {
+    font-size: 1.1rem;
+}
+
+.stat-progress-text {
+    font-size: 0.9rem;
+    font-weight: 700;
+    flex: 1;
+}
+
+/* Status colors */
+.stat-progress.success { color: #28a745; }
+.stat-progress.success i { color: #28a745; }
+
+.stat-progress.info { color: #17a2b8; }
+.stat-progress.info i { color: #17a2b8; }
+
+.stat-progress.warning { color: #ffc107; }
+.stat-progress.warning i { color: #ffc107; }
+
+.stat-progress.primary { color: #667eea; }
+.stat-progress.primary i { color: #667eea; }
+
+.dashboard-card {
+    background: white;
+    border-radius: 28px;
+    box-shadow: 0 12px 35px rgba(0,0,0,0.1);
+    border: 2px solid rgba(0,0,0,0.05);
+    margin-bottom: 2.5rem;
+    overflow: hidden;
+}
+
+.dashboard-card .card-header {
+    background: linear-gradient(135deg, rgba(102,126,234,0.06), rgba(118,75,162,0.06));
+    border-bottom: 2px solid rgba(102,126,234,0.12);
+    padding: 1.75rem 2.25rem;
+}
+
+.dashboard-card .card-title {
+    font-weight: 800;
+    font-size: 1.4rem;
+    color: #2c3e50;
+}
+
+.course-progress-card {
+    background: linear-gradient(135deg, #f8f9fa, #ffffff);
+    border: 2px solid transparent;
+    transition: all 0.4s;
+    border-radius: 18px;
+}
+
+.course-progress-card:hover {
+    border-color: #667eea;
+    box-shadow: 0 10px 30px rgba(102,126,234,0.2);
+    transform: translateY(-5px);
+}
+
+.course-thumbnail {
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.12);
+}
+
+.progress {
+    height: 10px;
+    border-radius: 12px;
+    background: rgba(102,126,234,0.12);
+}
+
+.progress-bar {
+    background: linear-gradient(90deg, #56ab2f, #a8e063);
+    border-radius: 12px;
+    transition: width 1s ease-out;
+}
+
+.quick-action-card {
+    transition: all 0.4s;
+    border-radius: 18px;
+    border: 2px solid #e9ecef;
+    background: white;
+}
+
+.quick-action-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(102,126,234,0.2);
+    border-color: #667eea;
+}
+
+.quick-action-card i {
+    transition: transform 0.4s;
+}
+
+.quick-action-card:hover i {
+    transform: scale(1.2) rotate(10deg);
+}
+
+.activity-item {
+    padding: 1.25rem;
+    border-radius: 14px;
+    transition: all 0.3s;
+}
+
+.activity-item:hover {
+    background: rgba(102,126,234,0.08);
+    transform: translateX(5px);
+}
+
+.activity-icon {
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(102,126,234,0.12);
+    transition: all 0.3s;
+}
+
+.activity-item:hover .activity-icon {
+    background: rgba(102,126,234,0.2);
+    transform: scale(1.1);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 4.5rem 2rem;
+    color: #6c757d;
+}
+
+.empty-state i {
+    opacity: 0.5;
+}
+
+.level-progress-circle {
+    width: 150px;
+    height: 150px;
+    margin: 0 auto;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border: none;
+    border-radius: 14px;
+    padding: 0.85rem 1.75rem;
+    font-weight: 700;
+    transition: all 0.4s;
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px rgba(102,126,234,0.45);
+}
+
+.btn-outline-primary {
+    border: 2px solid #667eea;
+    color: #667eea;
+    border-radius: 14px;
+    padding: 0.6rem 1.4rem;
+    font-weight: 700;
+    transition: all 0.4s;
+}
+
+.btn-outline-primary:hover {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-color: transparent;
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(102,126,234,0.3);
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.stat-card, .dashboard-card {
+    animation: fadeInUp 0.7s ease-out forwards;
+}
+
+.stat-card:nth-child(1) { animation-delay: 0.1s; }
+.stat-card:nth-child(2) { animation-delay: 0.2s; }
+.stat-card:nth-child(3) { animation-delay: 0.3s; }
+.stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+/* Rank badge styles */
+.rank-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, #ffd700, #ffed4e);
+    border-radius: 20px;
+    font-weight: 900;
+    color: #2c3e50;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Welcome Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="welcome-card">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h1 class="welcome-title">
+                            Welcome back, {{ user.first_name|default:user.username }}! 🌱
+                        </h1>
+                        <p class="welcome-subtitle mb-4">
+                            Continue your environmental learning journey and make a positive impact on our planet.
+                        </p>
+                        <div class="quick-stats d-flex flex-wrap gap-3">
+                            <span class="d-flex align-items-center">
+                                <i class="fas fa-trophy text-warning me-2"></i>
+                                Level {{ level|default:1 }}
+                            </span>
+                            <span class="d-flex align-items-center">
+                                <i class="fas fa-coins text-success me-2"></i>
+                                {{ total_points|default:0 }} Points
+                            </span>
+                            <span class="d-flex align-items-center">
+                                <i class="fas fa-medal text-info me-2"></i>
+                                {{ total_badges|default:0 }} Badges
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <div class="level-progress-circle position-relative mx-auto">
+                            <canvas id="levelProgressChart" width="150" height="150"></canvas>
+                            <div class="position-absolute top-50 start-50 translate-middle text-center">
+                                <div class="fs-1 fw-bold" style="color: #667eea;">{{ level|default:1 }}</div>
+                                <div class="small text-muted">Level</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards - DYNAMIC & ACTIVE -->
+    <div class="row g-4 mb-4">
+        <!-- Courses Enrolled -->
+        <div class="col-xl-3 col-md-6">
+            <a href="{% url 'core:course_list' %}" class="text-decoration-none">
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h3 class="stat-number">{{ total_enrollments|default:0 }}</h3>
+                            <p class="stat-label mb-0">Courses Enrolled</p>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-book fa-2x text-white"></i>
+                        </div>
+                    </div>
+                    <div class="stat-progress success">
+                        <i class="fas fa-arrow-up"></i>
+                        <span class="stat-progress-text">
+                            {% if enrollments_growth >= 0 %}
+                                +{{ enrollments_growth|floatformat:0 }}% from last month
+                            {% else %}
+                                {{ enrollments_growth|floatformat:0 }}% from last month
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Courses Completed -->
+        <div class="col-xl-3 col-md-6">
+            <a href="#" class="text-decoration-none">
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h3 class="stat-number">{{ completed_courses|default:0 }}</h3>
+                            <p class="stat-label mb-0">Courses Completed</p>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-graduation-cap fa-2x text-white"></i>
+                        </div>
+                    </div>
+                    <div class="stat-progress info">
+                        <i class="fas fa-check-circle"></i>
+                        <span class="stat-progress-text">
+                            {% if completion_rate > 0 %}
+                                {{ completion_rate|floatformat:0 }}% completion rate
+                            {% else %}
+                                Start completing courses!
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Badges Earned -->
+        <div class="col-xl-3 col-md-6">
+            <a href="{% url 'gamification:badges' %}" class="text-decoration-none">
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h3 class="stat-number">{{ total_badges|default:0 }}</h3>
+                            <p class="stat-label mb-0">Badges Earned</p>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-medal fa-2x text-white"></i>
+                        </div>
+                    </div>
+                    <div class="stat-progress warning">
+                        <i class="fas fa-star"></i>
+                        <span class="stat-progress-text">
+                            {% if new_badges_week > 0 %}
+                                +{{ new_badges_week }} new this week
+                            {% else %}
+                                Complete tasks to earn badges
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Weekly Rank -->
+        <div class="col-xl-3 col-md-6">
+            <a href="{% url 'core:leaderboard' %}" class="text-decoration-none">
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            {% if user_rank %}
+                                <h3 class="stat-number">👑{{ user_rank }}</h3>
+                            {% else %}
+                                <h3 class="stat-number">--</h3>
+                            {% endif %}
+                            <p class="stat-label mb-0">Weekly Rank</p>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-crown fa-2x text-white"></i>
+                        </div>
+                    </div>
+                    <div class="stat-progress primary">
+                        {% if user_rank %}
+                            {% if rank_change > 0 %}
+                                <i class="fas fa-arrow-up"></i>
+                                <span class="stat-progress-text">+{{ rank_change }} positions up</span>
+                            {% elif rank_change < 0 %}
+                                <i class="fas fa-arrow-down"></i>
+                                <span class="stat-progress-text">{{ rank_change }} positions down</span>
+                            {% else %}
+                                <i class="fas fa-minus"></i>
+                                <span class="stat-progress-text">Rank unchanged</span>
+                            {% endif %}
+                        {% else %}
+                            <i class="fas fa-info-circle"></i>
+                            <span class="stat-progress-text">Complete activities to rank</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Left Column -->
+        <div class="col-xl-8 col-lg-7">
+            <!-- Continue Learning Section -->
+            <div class="dashboard-card">
+                <div class="card-header border-0">
+                    <h5 class="card-title mb-0 d-flex align-items-center">
+                        <i class="fas fa-play-circle me-2" style="color: #667eea;"></i>
+                        Continue Learning
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    {% if in_progress_courses %}
+                        <div class="row g-3">
+                            {% for course_data in in_progress_courses %}
+                            <div class="col-md-6">
+                                <div class="course-progress-card p-3">
+                                    <div class="d-flex mb-3">
+                                        <div class="course-thumbnail me-3">
+                                            {% if course_data.enrollment.course.image %}
+                                                <img src="{{ course_data.enrollment.course.image.url }}" alt="{{ course_data.enrollment.course.title }}" class="img-fluid rounded" style="width: 70px; height: 52px; object-fit: cover;">
+                                            {% else %}
+                                                <div class="bg-gradient rounded d-flex align-items-center justify-content-center text-white" style="width: 70px; height: 52px; background: linear-gradient(135deg, #667eea, #764ba2);">
+                                                    <i class="fas fa-leaf fa-2x"></i>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1 fw-bold">{{ course_data.enrollment.course.title }}</h6>
+                                            <small class="text-muted">{{ course_data.enrollment.course.topic.name|default:"Environmental Science" }}</small>
+                                        </div>
+                                    </div>
+                                    <div class="progress mb-2">
+                                        <div class="progress-bar" style="width: {{ course_data.progress_percentage|default:0 }}%"></div>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted fw-semibold">{{ course_data.progress_percentage|default:0|floatformat:0 }}% complete</small>
+                                        <a href="{% url 'core:course_learn' course_data.enrollment.course.slug %}" class="btn btn-sm btn-outline-primary">Continue</a>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="fas fa-book-open fa-4x mb-3"></i>
+                            <h5 class="text-muted mb-2">No courses in progress</h5>
+                            <p class="text-muted">Start a new course to begin your learning journey!</p>
+                            <a href="{% url 'core:course_list' %}" class="btn btn-primary mt-2">
+                                <i class="fas fa-search me-2"></i>Browse Courses
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="dashboard-card">
+                <div class="card-header border-0">
+                    <h5 class="card-title mb-0 d-flex align-items-center">
+                        <i class="fas fa-bolt me-2" style="color: #667eea;"></i>
+                        Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-3 col-6">
+                            <a href="{% url 'core:course_list' %}" class="text-decoration-none">
+                                <div class="quick-action-card text-center p-4 h-100">
+                                    <i class="fas fa-search fa-2x mb-3" style="color: #667eea;"></i>
+                                    <div class="fw-semibold">Browse Courses</div>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <a href="{% url 'assessments:quiz_list' %}" class="text-decoration-none">
+                                <div class="quick-action-card text-center p-4 h-100">
+                                    <i class="fas fa-question-circle fa-2x mb-3" style="color: #17a2b8;"></i>
+                                    <div class="fw-semibold">Take Quiz</div>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <a href="{% url 'core:leaderboard' %}" class="text-decoration-none">
+                                <div class="quick-action-card text-center p-4 h-100">
+                                    <i class="fas fa-crown fa-2x mb-3" style="color: #ffc107;"></i>
+                                    <div class="fw-semibold">Leaderboard</div>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <a href="{% url 'core:profile' %}" class="text-decoration-none">
+                                <div class="quick-action-card text-center p-4 h-100">
+                                    <i class="fas fa-user fa-2x mb-3" style="color: #6c757d;"></i>
+                                    <div class="fw-semibold">My Profile</div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="col-xl-4 col-lg-5">
+            <!-- Recent Activity -->
+            <div class="dashboard-card">
+                <div class="card-header border-0">
+                    <h5 class="card-title mb-0 d-flex align-items-center">
+                        <i class="fas fa-history me-2" style="color: #667eea;"></i>
+                        Recent Activity
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    {% if recent_activities %}
+                        <div class="activity-feed">
+                            {% for activity in recent_activities %}
+                            <div class="activity-item mb-3">
+                                <div class="d-flex">
+                                    <div class="activity-icon me-3">
+                                        {% if activity.type == 'lesson_completed' %}
+                                            <i class="fas fa-check-circle" style="color: #28a745;"></i>
+                                        {% elif activity.type == 'enrolled' %}
+                                            <i class="fas fa-plus-circle" style="color: #667eea;"></i>
+                                        {% elif activity.type == 'badge_earned' %}
+                                            <i class="fas fa-medal" style="color: #ffc107;"></i>
+                                        {% else %}
+                                            <i class="fas fa-info-circle" style="color: #17a2b8;"></i>
+                                        {% endif %}
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="fw-semibold mb-1">{{ activity.title }}</div>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <small class="text-muted">{{ activity.course|default:"" }}</small>
+                                            <small class="text-muted">{{ activity.date|timesince }} ago</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="empty-state py-5">
+                            <i class="fas fa-clock fa-3x mb-3"></i>
+                            <p class="text-muted mb-0">No recent activity</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const canvas = document.getElementById('levelProgressChart');
+    if (canvas) {
+        const ctx = canvas.getContext('2d');
+        const progress = {{ level_progress|default:0 }};
+
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                datasets: [{
+                    data: [progress, 100 - progress],
+                    backgroundColor: ['#667eea', 'rgba(102,126,234,0.12)'],
+                    borderWidth: 0,
+                    cutout: '78%'
+                }]
+            },
+            options: {
+                responsive: false,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false }, tooltip: { enabled: false } },
+                animation: { animateRotate: true, duration: 2000 }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

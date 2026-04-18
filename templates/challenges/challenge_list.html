@@ -1,0 +1,443 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Environmental Challenges - EcoLearn{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --eco-green: #10b981;
+        --eco-light-green: #d1fae5;
+        --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        --hover-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .challenges-hero {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 60px 20px;
+        text-align: center;
+        border-radius: 15px;
+        margin-bottom: 40px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .challenges-hero::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 300px;
+        height: 300px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+    }
+
+    .challenges-hero h1 {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 15px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .challenges-hero p {
+        font-size: 1.2rem;
+        opacity: 0.95;
+        position: relative;
+        z-index: 1;
+    }
+
+    .challenges-hero .icon {
+        font-size: 4rem;
+        margin-bottom: 20px;
+    }
+
+    .filters-section {
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        margin-bottom: 30px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    }
+
+    .filters-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        align-items: end;
+    }
+
+    .filter-group label {
+        display: block;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 8px;
+        font-size: 0.95rem;
+    }
+
+    .filter-group select,
+    .filter-group input {
+        width: 100%;
+        padding: 10px 12px;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        transition: all 0.3s;
+    }
+
+    .filter-group select:focus,
+    .filter-group input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .btn-search {
+        background: var(--primary-gradient);
+        color: white;
+        padding: 10px 30px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        width: 100%;
+    }
+
+    .btn-search:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+    }
+
+    .challenges-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 25px;
+        margin-bottom: 40px;
+    }
+
+    .challenge-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: var(--card-shadow);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        border: 1px solid #f0f0f0;
+    }
+
+    .challenge-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--hover-shadow);
+    }
+
+    .challenge-card-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 20px;
+        color: white;
+        position: relative;
+        min-height: 120px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .challenge-difficulty {
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        width: fit-content;
+        margin-bottom: 10px;
+    }
+
+    .difficulty-easy { background: rgba(16, 185, 129, 0.3) !important; color: #059669; }
+    .difficulty-medium { background: rgba(245, 158, 11, 0.3) !important; color: #d97706; }
+    .difficulty-hard { background: rgba(239, 68, 68, 0.3) !important; color: #dc2626; }
+
+    .challenge-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin: 0;
+        line-height: 1.3;
+    }
+
+    .challenge-card-body {
+        padding: 20px;
+    }
+
+    .challenge-description {
+        color: #6b7280;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        margin-bottom: 15px;
+        min-height: 50px;
+    }
+
+    .challenge-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+        color: #6b7280;
+    }
+
+    .meta-item strong {
+        color: #374151;
+    }
+
+    .points-badge {
+        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        color: white;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+
+    .category-tag {
+        display: inline-block;
+        background: #f0f9ff;
+        color: #0369a1;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    .challenge-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn-view {
+        flex: 1;
+        padding: 10px 15px;
+        background: var(--primary-gradient);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+        text-align: center;
+    }
+
+    .btn-view:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-view.completed {
+        background: var(--eco-green);
+        pointer-events: none;
+        opacity: 0.8;
+    }
+
+    .completed-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: var(--eco-light-green);
+        color: var(--eco-green);
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .no-challenges {
+        text-align: center;
+        padding: 60px 20px;
+        color: #6b7280;
+    }
+
+    .no-challenges-icon {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        opacity: 0.5;
+    }
+
+    .pagination {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 40px;
+    }
+
+    .pagination a,
+    .pagination span {
+        padding: 10px 12px;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        text-decoration: none;
+        color: #374151;
+        font-weight: 500;
+        transition: all 0.3s;
+    }
+
+    .pagination a:hover {
+        border-color: #667eea;
+        background: #667eea;
+        color: white;
+    }
+
+    .pagination .current {
+        background: #667eea;
+        color: white;
+        border-color: #667eea;
+    }
+
+    @media (max-width: 768px) {
+        .challenges-hero h1 {
+            font-size: 2rem;
+        }
+
+        .challenges-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .filters-row {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-5">
+    <!-- Hero Section -->
+    <div class="challenges-hero">
+        <div class="icon">🏆</div>
+        <h1>Environmental Challenges</h1>
+        <p>Complete real-world tasks and earn eco-points & badges!</p>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="filters-section">
+        <form method="get" class="filters-row">
+            <div class="filter-group">
+                <label for="difficulty">Difficulty Level</label>
+                <select name="difficulty" id="difficulty">
+                    <option value="">All Difficulties</option>
+                    <option value="easy" {% if request.GET.difficulty == 'easy' %}selected{% endif %}>🟢 Easy</option>
+                    <option value="medium" {% if request.GET.difficulty == 'medium' %}selected{% endif %}>🟡 Medium</option>
+                    <option value="hard" {% if request.GET.difficulty == 'hard' %}selected{% endif %}>🔴 Hard</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="category">Category</label>
+                <select name="category" id="category">
+                    <option value="">All Categories</option>
+                    <option value="tree_plantation" {% if request.GET.category == 'tree_plantation' %}selected{% endif %}>🌳 Tree Plantation</option>
+                    <option value="waste_management" {% if request.GET.category == 'waste_management' %}selected{% endif %}>♻️ Waste Management</option>
+                    <option value="water_conservation" {% if request.GET.category == 'water_conservation' %}selected{% endif %}>💧 Water Conservation</option>
+                    <option value="energy_saving" {% if request.GET.category == 'energy_saving' %}selected{% endif %}>⚡ Energy Saving</option>
+                    <option value="clean_environment" {% if request.GET.category == 'clean_environment' %}selected{% endif %}>🌍 Clean Environment</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="search">Search</label>
+                <input type="text" name="search" id="search" placeholder="Search challenges..." value="{{ request.GET.search }}">
+            </div>
+
+            <button type="submit" class="btn-search">🔍 Search</button>
+        </form>
+    </div>
+
+    <!-- Challenges Grid -->
+    {% if challenges %}
+        <div class="challenges-grid">
+            {% for challenge in challenges %}
+                <div class="challenge-card">
+                    <!-- Card Header -->
+                    <div class="challenge-card-header">
+                        <div>
+                            <span class="challenge-difficulty difficulty-{{ challenge.get_difficulty_display|lower }}">
+                                {{ challenge.get_difficulty_display|upper }}
+                            </span>
+                        </div>
+                        <h3 class="challenge-title">{{ challenge.title }}</h3>
+                    </div>
+
+                    <!-- Card Body -->
+                    <div class="challenge-card-body">
+                        <p class="challenge-description">{{ challenge.description|truncatewords:20 }}</p>
+
+                        <!-- Meta Information -->
+                        <div class="challenge-meta">
+                            <div class="meta-item">
+                                <span>📂</span>
+                                <span class="category-tag">{{ challenge.get_category_display }}</span>
+                            </div>
+                            <div class="points-badge">
+                                ⭐ +{{ challenge.points_reward }}
+                            </div>
+                        </div>
+
+                        <!-- Completion Status -->
+                        {% if challenge.id in completed_challenges %}
+                            <div class="completed-badge">
+                                <span>✓</span> Completed
+                            </div>
+                        {% endif %}
+
+                        <!-- Action Button -->
+                        <div class="challenge-actions">
+                            <a href="{% url 'challenges:challenge_detail' challenge.pk %}" class="btn-view {% if challenge.id in completed_challenges %}completed{% endif %}">
+                                View & Submit →
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if is_paginated %}
+            <div class="pagination">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1">First</a>
+                    <a href="?page={{ page_obj.previous_page_number }}">← Previous</a>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <span class="current">{{ num }}</span>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <a href="?page={{ num }}">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}">Next →</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="no-challenges">
+            <div class="no-challenges-icon">🔍</div>
+            <h3>No Challenges Available</h3>
+            <p>Check back soon! New environmental challenges are being added regularly.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

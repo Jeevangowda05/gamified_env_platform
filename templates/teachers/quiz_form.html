@@ -1,0 +1,96 @@
+{% extends 'teachers/base.html' %}
+
+{% block title %}{% if mode == 'create' %}Create Quiz{% else %}Edit Quiz{% endif %}{% endblock %}
+
+{% block teacher_content %}
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">{% if mode == 'create' %}Create Quiz{% else %}Update Quiz{% endif %}</h5>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Title</label>
+                    {{ form.title }}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Category</label>
+                    {{ form.category }}
+                </div>
+                <div class="col-12">
+                    <label class="form-label fw-semibold">Quiz Introduction / Description</label>
+                    {{ form.description }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Quiz Type</label>
+                    {{ form.quiz_type }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Difficulty</label>
+                    {{ form.difficulty }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Time Limit (minutes)</label>
+                    {{ form.time_limit }}
+                </div>
+                <div class="col-md-3"><label class="form-label fw-semibold">Max Attempts</label>{{ form.max_attempts }}</div>
+                <div class="col-md-3"><label class="form-label fw-semibold">Passing Score</label>{{ form.passing_score }}</div>
+                <div class="col-md-3"><label class="form-label fw-semibold">Points / Question</label>{{ form.points_per_question }}</div>
+                <div class="col-md-3"><label class="form-label fw-semibold">Bonus Points</label>{{ form.bonus_points }}</div>
+                <div class="col-md-6"><div class="form-check mt-2">{{ form.is_published }} <label class="form-check-label">Published</label></div></div>
+                <div class="col-md-6"><div class="form-check mt-2">{{ form.is_featured }} <label class="form-check-label">Featured</label></div></div>
+                <div class="col-md-6"><div class="form-check mt-2">{{ form.is_scheduled }} <label class="form-check-label">Schedule this quiz</label></div></div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Start Date & Time</label>
+                    {{ form.scheduled_start_datetime }}
+                    {% if form.scheduled_start_datetime.errors %}<div class="text-danger small">{{ form.scheduled_start_datetime.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">End Date & Time (optional)</label>
+                    {{ form.scheduled_end_datetime }}
+                    {% if form.scheduled_end_datetime.errors %}<div class="text-danger small">{{ form.scheduled_end_datetime.errors.0 }}</div>{% endif %}
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Save</button>
+                <a href="{% url 'teacher:quiz_list' %}" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if quiz %}
+<div class="row g-4 mt-2">
+    <div class="col-lg-7">
+        <div class="card">
+            <div class="card-header"><h6 class="mb-0">Questions</h6></div>
+            <ul class="list-group list-group-flush">
+                {% for question in questions %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>{{ forloop.counter }}. {{ question.question_text|truncatechars:80 }}</span>
+                    <a href="{% url 'teacher:question_update' quiz.id question.id %}" class="btn btn-outline-secondary btn-sm">Edit</a>
+                </li>
+                {% empty %}
+                <li class="list-group-item text-muted">No questions added yet.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="card">
+            <div class="card-header"><h6 class="mb-0">Add Question</h6></div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="add_question">
+                    {{ question_form.as_p }}
+                    <button type="submit" class="btn btn-primary btn-sm">Add Question</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,318 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Submit - {{ challenge.title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+:root {
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --eco-green: #10b981;
+    --eco-nav: #23b37e;
+}
+
+body {
+    background-color: #f8fafc;
+}
+
+.submit-container {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 40px 20px 60px 20px;
+}
+
+.submit-header {
+    text-align: center;
+    margin-bottom: 40px;
+    animation: fadeup 0.7s cubic-bezier(.75,.02,.25,.99);
+}
+
+@keyframes fadeup {
+    from { opacity: 0; transform: translateY(30px);}
+    to { opacity: 1; transform: translateY(0);}
+}
+
+.submit-header h1 {
+    font-size: 2.1rem;
+    color: #23253a;
+    font-weight: 700;
+    margin-bottom: 12px;
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+}
+
+.submit-header p {
+    color: #667eea;
+    font-size: 1.15rem;
+    font-weight: 500;
+    letter-spacing: .01em;
+}
+
+.messages {
+    margin-bottom: 30px;
+}
+
+.alert {
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.alert-error {
+    background: #fdd0d0;
+    color: #a8000a;
+    border-left: 4px solid #a8000a;
+}
+.alert-success {
+    background: #d1fae5;
+    color: #059669;
+    border-left: 4px solid #10b981;
+}
+
+.submit-form-container {
+    background: white;
+    padding: 44px 30px 28px 30px;
+    border-radius: 18px;
+    box-shadow: 0 4px 16px rgba(102,126,234,0.12), 0 1.5px 6px 0 #23b37e0a;
+    animation: fadeup 0.6s cubic-bezier(.75,.02,.25,.99) 0.1s;
+}
+
+.form-section {
+    margin-bottom: 30px;
+}
+
+.form-section h2 {
+    font-size: 1.12rem;
+    color: #565975;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.help-text {
+    color: #718096;
+    font-size: .95rem;
+    margin-bottom: 15px;
+}
+
+.file-upload {
+    position: relative;
+}
+.file-upload input[type="file"] {
+    display: none;
+}
+
+.file-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 45px;
+    border: 3px dashed #667eea;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: #f4f7fd;
+}
+
+.file-label:hover {
+    background: #eceffd;
+    border-color: #764ba2;
+}
+
+.file-label i {
+    font-size: 2.2rem;
+    color: #667eea;
+    margin-bottom: 5px;
+}
+.file-label span {
+    font-weight: 600;
+    color: #23253a;
+}
+.file-label small {
+    color: #8498b9;
+    font-size: 0.87rem;
+}
+.file-preview {
+    margin-top: 15px;
+    text-align: center;
+}
+.file-preview img,
+.file-preview p {
+    max-width: 100%;
+}
+
+textarea {
+    width: 100%;
+    padding: 14px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 1rem;
+    transition: all 0.2s;
+    resize: vertical;
+    background: #f8fafc;
+}
+textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 2.5px rgba(102, 126, 234, 0.1);
+}
+
+.form-info {
+    background: #edf5fa;
+    padding: 18px 20px 14px 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    border-left: 4px solid #667eea;
+}
+.form-info h3 {
+    color: #37247d;
+    margin-bottom: 13px;
+    font-size: 1rem;
+}
+
+.form-info ol {
+    color: #4a5568;
+    margin: 0 0 0 18px;
+    font-size: 0.97rem;
+    line-height: 1.8;
+}
+.form-info li {
+    margin-bottom: 7px;
+}
+.form-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 18px;
+}
+.btn-submit,
+.btn-cancel {
+    flex: 1;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.02rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.25s cubic-bezier(.7,.03,.27,.98);
+    box-shadow: 0 2px 8px rgba(102,126,234,.08);
+}
+.btn-submit {
+    background: var(--primary-gradient);
+    color: white;
+    letter-spacing: 0.02em;
+}
+.btn-submit:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 10px 24px #667eea45;
+}
+.btn-cancel {
+    background: #eceefe;
+    color: #23315d;
+    font-weight: 600;
+}
+.btn-cancel:hover {
+    background: #ccd5fb;
+}
+
+@media (max-width: 600px) {
+    .submit-form-container {padding:25px 5px;}
+    .submit-header   {padding-top: 5px;}
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="submit-container">
+    <div class="submit-header">
+        <h1>Submit Your Proof<br><span style="color: #23b37e;">{{ challenge.title }}</span></h1>
+        <p>Upload an image or PDF showing your completed challenge</p>
+    </div>
+    
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="submit-form-container">
+        <form method="post" enctype="multipart/form-data" class="submit-form">
+            {% csrf_token %}
+            <div class="form-section">
+                <h2>📸 Upload Proof</h2>
+                <p class="help-text">Upload an image or PDF of your completed work (max 10MB)</p>
+                <div class="file-upload">
+                    <input type="file" id="proof_file" name="proof_file" accept=".pdf,.jpg,.jpeg,.png" required>
+                    <label for="proof_file" class="file-label">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <span>Click to upload or drag & drop</span>
+                        <small>Supported: PDF, JPG, PNG</small>
+                    </label>
+                    <div id="file-preview" class="file-preview"></div>
+                </div>
+            </div>
+            <div class="form-section">
+                <h2>📝 Description (Optional)</h2>
+                <p class="help-text">Tell us about what you did</p>
+                <textarea name="description" placeholder="Describe your work... (e.g., 'I planted 5 trees in my locality...')" rows="6"></textarea>
+            </div>
+            <div class="form-info">
+                <h3>✓ What happens next?</h3>
+                <ol>
+                    <li><strong>Review:</strong> Our team will verify your submission</li>
+                    <li><strong>Decision:</strong> You&apos;ll be notified within 24-48 hours</li>
+                    <li><strong>Rewards:</strong> Upon approval, you&apos;ll earn {{ challenge.points_reward }} points!</li>
+                </ol>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn-submit">Submit Challenge</button>
+                <a href="{% url 'challenges:challenge_detail' challenge.id %}" class="btn-cancel">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+document.getElementById('proof_file').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    const preview = document.getElementById('file-preview');
+    if (file) {
+        if (file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.innerHTML = `<img src="${e.target.result}" style="max-width: 200px; border-radius: 8px;">`;
+            };
+            reader.readAsDataURL(file);
+        } else if (file.type === 'application/pdf') {
+            preview.innerHTML = `<p><i class="fas fa-file-pdf" style="font-size: 3rem; color: #d4423f;"></i><br><strong>${file.name}</strong></p>`;
+        }
+    }
+});
+
+// Drag and drop
+const fileInput = document.getElementById('proof_file');
+const fileLabel = document.querySelector('.file-label');
+fileLabel.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    fileLabel.style.borderColor = '#764ba2';
+    fileLabel.style.background = '#eceffd';
+});
+fileLabel.addEventListener('dragleave', () => {
+    fileLabel.style.borderColor = '#667eea';
+    fileLabel.style.background = '#f4f7fd';
+});
+fileLabel.addEventListener('drop', (e) => {
+    e.preventDefault();
+    fileInput.files = e.dataTransfer.files;
+    fileInput.dispatchEvent(new Event('change', { bubbles: true }));
+});
+</script>
+{% endblock %}

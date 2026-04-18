@@ -1,0 +1,20 @@
+{% extends 'teachers/base.html' %}
+
+{% block title %}Teacher Analytics{% endblock %}
+
+{% block teacher_content %}
+<div class="row g-3 mb-4">
+    <div class="col-md-3"><div class="card teacher-stat"><div class="card-body"><h6>Total Students</h6><h3>{{ total_students }}</h3></div></div></div>
+    <div class="col-md-3"><div class="card teacher-stat"><div class="card-body"><h6>Total Enrollments</h6><h3>{{ total_enrollments }}</h3></div></div></div>
+    <div class="col-md-3"><div class="card teacher-stat"><div class="card-body"><h6>Completed Courses</h6><h3>{{ completed_courses }}</h3></div></div></div>
+    <div class="col-md-3"><div class="card teacher-stat"><div class="card-body"><h6>Quiz Pass Rate</h6><h3>{{ quiz_pass_rate }}%</h3></div></div></div>
+</div>
+
+<div class="card">
+    <div class="card-header"><h5 class="mb-0">Enrollment Distribution</h5></div>
+    <div class="card-body">
+        <canvas id="teacherAnalyticsChart" data-chart='{{ analytics_payload_json|safe }}'></canvas>
+        <p class="small text-muted mt-2 mb-0">Average progress score: {{ average_progress_value }}</p>
+    </div>
+</div>
+{% endblock %}

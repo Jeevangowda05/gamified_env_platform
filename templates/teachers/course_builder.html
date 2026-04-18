@@ -1,0 +1,142 @@
+{% extends 'teachers/base.html' %}
+
+{% block title %}Course Builder{% endblock %}
+
+{% block teacher_content %}
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Build Course Content: {{ course.title }}</h5>
+        <a href="{% url 'teacher:course_list' %}" class="btn btn-outline-secondary btn-sm">Back to Courses</a>
+    </div>
+    <div class="card-body">
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <h6 class="fw-bold mb-3">Add Module</h6>
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="add_module">
+                    {{ module_form.as_p }}
+                    <button type="submit" class="btn btn-primary btn-sm">Add Module</button>
+                </form>
+            </div>
+            <div class="col-lg-6">
+                <h6 class="fw-bold mb-3">Add Lesson</h6>
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="add_lesson">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Module</label>
+                        <select name="module_id" class="form-select" required>
+                            <option value="">Select module</option>
+                            {% for module in modules %}
+                            <option value="{{ module.id }}">{{ module.title }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {{ lesson_form.as_p }}
+                    <button type="submit" class="btn btn-primary btn-sm">Add Lesson</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h6 class="mb-0">Current Modules & Lessons</h6>
+    </div>
+    <div class="card-body">
+        {% for module in modules %}
+        <div class="mb-4">
+            <div class="d-flex justify-content-between align-items-start gap-2 flex-wrap">
+                <h6 class="fw-bold mb-0">{{ forloop.counter }}. {{ module.title }}</h6>
+                <div class="btn-group btn-group-sm" role="group" aria-label="Module actions">
+                    <a href="{% url 'teacher:module_update' module.id %}" class="btn btn-outline-primary" title="Edit module">
+                        <i class="fas fa-pen"></i>
+                    </a>
+                    <button
+                        type="button"
+                        class="btn btn-outline-danger"
+                        title="Delete module"
+                        data-bs-toggle="modal"
+                        data-bs-target="#deleteModuleModal{{ module.id }}"
+                    >
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+            <p class="text-muted mb-2">{{ module.description|default:"No module description" }}</p>
+            <ul class="list-group">
+                {% for lesson in module.lessons.all %}
+                <li class="list-group-item d-flex justify-content-between align-items-center gap-3 flex-wrap">
+                    <span>{{ lesson.title }} <small class="text-muted">({{ lesson.get_lesson_type_display }})</small></span>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-light text-dark">{{ lesson.duration_minutes }} min</span>
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Lesson actions">
+                            <a href="{% url 'teacher:lesson_update' lesson.id %}" class="btn btn-outline-primary" title="Edit lesson">
+                                <i class="fas fa-pen"></i>
+                            </a>
+                            <button
+                                type="button"
+                                class="btn btn-outline-danger"
+                                title="Delete lesson"
+                                data-bs-toggle="modal"
+                                data-bs-target="#deleteLessonModal{{ lesson.id }}"
+                            >
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="modal fade" id="deleteLessonModal{{ lesson.id }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Delete Lesson</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    Are you sure you want to delete <strong>{{ lesson.title }}</strong>?
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    <form method="post" action="{% url 'teacher:lesson_delete' lesson.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                {% empty %}
+                <li class="list-group-item text-muted">No lessons yet.</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="modal fade" id="deleteModuleModal{{ module.id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Delete Module</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Are you sure you want to delete <strong>{{ module.title }}</strong> and its lessons?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <form method="post" action="{% url 'teacher:module_delete' module.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p class="text-muted mb-0">No modules created yet.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

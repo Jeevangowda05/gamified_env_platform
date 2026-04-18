@@ -1,0 +1,698 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Profile - EcoLearn Platform{% endblock %}
+
+{% block content %}
+<div class="profile-page-wrapper">
+    <div class="container py-5">
+        <!-- Profile Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="profile-header-modern p-5 rounded-4 shadow-lg position-relative overflow-hidden">
+                    <div class="floating-shapes">
+                        <div class="shape shape-1"></div>
+                        <div class="shape shape-2"></div>
+                        <div class="shape shape-3"></div>
+                    </div>
+                    <div class="row align-items-center position-relative" style="z-index: 2;">
+                        <div class="col-md-3 text-center mb-4 mb-md-0">
+                            <div class="profile-avatar-container position-relative d-inline-block">
+                                <div class="avatar-glow"></div>
+                                <img src="{% if user.avatar %}{{ user.avatar.url }}{% else %}{% static 'images/avatars/default.png' %}{% endif %}" 
+                                     alt="{{ user.get_full_name|default:user.username }}" class="profile-avatar">
+                                <div class="level-badge-floating">
+                                    <span class="badge bg-gradient-warning fs-5 px-3 py-2 shadow-lg">
+                                        <i class="fas fa-star me-1"></i>Lv {{ user_level }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 text-white mb-4 mb-md-0">
+                            <h2 class="mb-3 fw-bold display-6">{{ user.get_full_name|default:user.username }}</h2>
+                            <div class="profile-info-item mb-2">
+                                <i class="fas fa-envelope me-2"></i>{{ user.email }}
+                            </div>
+                            <div class="profile-info-item mb-2">
+                                <i class="fas fa-graduation-cap me-2"></i>{{ user.institution|default:"EcoLearn Academy" }}
+                                {% if user.grade_level %}<span class="ms-2">| Grade {{ user.grade_level }}</span>{% endif %}
+                            </div>
+                            <div class="profile-info-item">
+                                <i class="fas fa-calendar-alt me-2"></i>Joined {{ user.date_joined|date:"F Y" }}
+                            </div>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <div class="points-display-modern p-4 bg-white bg-opacity-10 rounded-4 backdrop-blur">
+                                <div class="points-icon mb-2">
+                                    <i class="fas fa-coins fa-2x text-warning"></i>
+                                </div>
+                                <div class="points-number-large text-white">{{ user_points }}</div>
+                                <div class="points-label-modern text-white-50">Total Points</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Profile Stats Sidebar -->
+            <div class="col-lg-4 mb-4">
+                <!-- My Statistics Card -->
+                <div class="card stats-card-modern shadow-lg border-0 mb-4">
+                    <div class="card-header-gradient text-white">
+                        <h5 class="mb-0 fw-bold">
+                            <i class="fas fa-chart-line me-2"></i>My Statistics
+                        </h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="stat-item-modern mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <div class="stat-icon-circle bg-primary-light me-3">
+                                        <i class="fas fa-trophy text-warning"></i>
+                                    </div>
+                                    <span class="stat-label">Current Level</span>
+                                </div>
+                                <span class="badge bg-primary-gradient fs-6 px-3 py-2 shadow-sm">Level {{ user_level }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-item-modern mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <div class="stat-icon-circle bg-success-light me-3">
+                                        <i class="fas fa-coins text-success"></i>
+                                    </div>
+                                    <span class="stat-label">Total Points</span>
+                                </div>
+                                <span class="fw-bold text-success fs-5">{{ user_points }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-item-modern mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <div class="stat-icon-circle bg-warning-light me-3">
+                                        <i class="fas fa-medal text-warning"></i>
+                                    </div>
+                                    <span class="stat-label">Badges Earned</span>
+                                </div>
+                                <span class="fw-bold fs-5 text-warning">{{ user_badges }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-item-modern mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <div class="stat-icon-circle bg-info-light me-3">
+                                        <i class="fas fa-graduation-cap text-info"></i>
+                                    </div>
+                                    <span class="stat-label">Courses Completed</span>
+                                </div>
+                                <span class="fw-bold fs-5 text-info">{{ courses_completed }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-item-modern mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <div class="stat-icon-circle bg-purple-light me-3">
+                                        <i class="fas fa-question-circle text-primary"></i>
+                                    </div>
+                                    <span class="stat-label">Quizzes Taken</span>
+                                </div>
+                                <span class="fw-bold fs-5 text-primary">{{ quizzes_taken }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-item-modern">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <div class="stat-icon-circle bg-danger-light me-3">
+                                        <i class="fas fa-percentage text-danger"></i>
+                                    </div>
+                                    <span class="stat-label">Average Quiz Score</span>
+                                </div>
+                                <span class="fw-bold fs-5 text-danger">{{ avg_quiz_score }}%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Level Progress Card -->
+                <div class="card stats-card-modern shadow-lg border-0 mb-4">
+                    <div class="card-header-gradient-success text-white">
+                        <h5 class="mb-0 fw-bold">
+                            <i class="fas fa-arrow-up me-2"></i>Level Progress
+                        </h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="level-progress-modern">
+                            <div class="d-flex justify-content-between mb-3">
+                                <span class="fw-bold fs-5">Level {{ user_level }}</span>
+                                <span class="text-success fw-bold fs-5">{{ level_progress }}%</span>
+                            </div>
+                            <div class="progress progress-modern mb-3">
+                                <div class="progress-bar bg-gradient-success progress-bar-striped progress-bar-animated" 
+                                     style="width: {{ level_progress }}%" role="progressbar"></div>
+                            </div>
+                            <div class="progress-info text-center p-3 bg-light rounded-3">
+                                <small class="text-muted fw-semibold">
+                                    <i class="fas fa-bullseye me-1"></i>
+                                    {{ user_points }} / {{ points_to_next_level }} points to next level
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Environmental Impact Card -->
+                <div class="card stats-card-modern shadow-lg border-0">
+                    <div class="card-header-gradient-info text-white">
+                        <h5 class="mb-0 fw-bold">
+                            <i class="fas fa-leaf me-2"></i>Environmental Impact
+                        </h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="impact-item-modern mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <div class="impact-icon-circle bg-success-light me-3">
+                                        <i class="fas fa-tree text-success"></i>
+                                    </div>
+                                    <span class="stat-label">CO₂ Saved</span>
+                                </div>
+                                <span class="fw-bold text-success fs-5">{{ co2_saved }} kg</span>
+                            </div>
+                        </div>
+                        <div class="impact-item-modern mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <div class="impact-icon-circle bg-primary-light me-3">
+                                        <i class="fas fa-tint text-primary"></i>
+                                    </div>
+                                    <span class="stat-label">Water Saved</span>
+                                </div>
+                                <span class="fw-bold text-primary fs-5">{{ water_saved }} L</span>
+                            </div>
+                        </div>
+                        <div class="impact-item-modern">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <div class="impact-icon-circle bg-warning-light me-3">
+                                        <i class="fas fa-recycle text-warning"></i>
+                                    </div>
+                                    <span class="stat-label">Waste Recycled</span>
+                                </div>
+                                <span class="fw-bold text-warning fs-5">{{ waste_recycled }} kg</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content Area -->
+            <div class="col-lg-8">
+                <!-- Recent Activity Card -->
+                <div class="card shadow-lg border-0 mb-4 modern-card">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center py-4 px-4">
+                        <h5 class="mb-0 fw-bold text-primary">
+                            <i class="fas fa-history me-2"></i>Recent Activity
+                        </h5>
+                        <a href="{% url 'accounts:profile_edit' %}" class="btn btn-primary-gradient px-4 py-2 shadow-sm">
+                            <i class="fas fa-edit me-2"></i>Edit Profile
+                        </a>
+                    </div>
+                    <div class="card-body p-4">
+                        {% if recent_activities %}
+                            <div class="activity-timeline-modern">
+                                {% for activity in recent_activities %}
+                                <div class="activity-item-modern d-flex mb-4 p-3">
+                                    <div class="activity-icon-modern me-4">
+                                        <i class="fas {{ activity.icon }} {{ activity.icon_color }}"></i>
+                                    </div>
+                                    <div class="activity-content-modern flex-grow-1">
+                                        <div class="activity-title-modern fw-bold mb-1">{{ activity.title }}</div>
+                                        <div class="activity-description-modern text-muted mb-2">{{ activity.description }}</div>
+                                        <div class="activity-time-modern text-muted small">
+                                            <i class="far fa-clock me-1"></i>{{ activity.time }}
+                                        </div>
+                                    </div>
+                                    <div class="activity-points-modern align-self-center">
+                                        <span class="badge bg-success-gradient px-3 py-2 shadow-sm">
+                                            <i class="fas fa-plus me-1"></i>{{ activity.points }} pts
+                                        </span>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="empty-state text-center py-5">
+                                <div class="empty-icon mb-4">
+                                    <i class="fas fa-history fa-4x text-muted opacity-25"></i>
+                                </div>
+                                <h5 class="text-muted mb-3">No recent activity yet</h5>
+                                <p class="text-muted">Start learning to see your progress here!</p>
+                                <a href="{% url 'core:course_list' %}" class="btn btn-primary-gradient mt-3">
+                                    <i class="fas fa-book me-2"></i>Browse Courses
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Recent Achievements Card -->
+                <div class="card shadow-lg border-0 modern-card">
+                    <div class="card-header bg-white py-4 px-4">
+                        <h5 class="mb-0 fw-bold text-primary">
+                            <i class="fas fa-medal me-2"></i>Recent Achievements
+                        </h5>
+                    </div>
+                    <div class="card-body p-4">
+                        {% if recent_badges %}
+                            <div class="row g-4">
+                                {% for badge in recent_badges %}
+                                <div class="col-md-4 col-sm-6">
+                                    <div class="badge-item-modern text-center p-4 h-100">
+                                        <div class="badge-icon-modern mb-3">
+                                            <i class="fas {{ badge.icon }} fa-4x {{ badge.color }}"></i>
+                                        </div>
+                                        <h6 class="mb-2 fw-bold">{{ badge.name }}</h6>
+                                        <small class="text-muted">
+                                            <i class="far fa-calendar me-1"></i>{{ badge.earned_at }}
+                                        </small>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="empty-state text-center py-5">
+                                <div class="empty-icon mb-4">
+                                    <i class="fas fa-medal fa-4x text-muted opacity-25"></i>
+                                </div>
+                                <h5 class="text-muted mb-3">No badges earned yet</h5>
+                                <p class="text-muted">Complete courses and quizzes to earn badges!</p>
+                            </div>
+                        {% endif %}
+                        <div class="text-center mt-4">
+                            <a href="{% url 'gamification:badges' %}" class="btn btn-outline-primary px-4 py-2">
+                                <i class="fas fa-medal me-2"></i>View All Badges
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Enhanced MNC-Level Profile Styles */
+.profile-page-wrapper {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+    padding: 2rem 0;
+}
+
+.profile-header-modern {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+}
+
+.floating-shapes {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    top: 0;
+    left: 0;
+}
+
+.shape {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+    animation: float 20s infinite ease-in-out;
+}
+
+.shape-1 {
+    width: 300px;
+    height: 300px;
+    top: -100px;
+    right: -50px;
+}
+
+.shape-2 {
+    width: 200px;
+    height: 200px;
+    bottom: -50px;
+    left: -30px;
+    animation-delay: 5s;
+}
+
+.shape-3 {
+    width: 150px;
+    height: 150px;
+    top: 50%;
+    left: 50%;
+    animation-delay: 10s;
+}
+
+@keyframes float {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    33% { transform: translate(30px, -30px) rotate(120deg); }
+    66% { transform: translate(-20px, 20px) rotate(240deg); }
+}
+
+.profile-avatar-container {
+    position: relative;
+}
+
+.avatar-glow {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,215,0,0.3), transparent);
+    animation: pulse 3s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 0.5; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+}
+
+.profile-avatar {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 5px solid rgba(255,255,255,0.3);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    z-index: 2;
+}
+
+.profile-avatar:hover {
+    transform: scale(1.05) translateY(-5px);
+    border-color: rgba(255,255,255,0.6);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+}
+
+.level-badge-floating {
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+}
+
+.bg-gradient-warning {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    border: none;
+}
+
+.profile-info-item {
+    font-size: 1.05rem;
+    opacity: 0.95;
+    padding: 0.5rem 0;
+    transition: all 0.3s;
+}
+
+.profile-info-item:hover {
+    opacity: 1;
+    transform: translateX(5px);
+}
+
+.points-display-modern {
+    transition: transform 0.3s;
+}
+
+.points-display-modern:hover {
+    transform: scale(1.05);
+}
+
+.backdrop-blur {
+    backdrop-filter: blur(10px);
+}
+
+.points-icon {
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.points-number-large {
+    font-size: 3rem;
+    font-weight: 800;
+    line-height: 1;
+    text-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+}
+
+.points-label-modern {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-top: 0.5rem;
+}
+
+.stats-card-modern {
+    border-radius: 1.25rem;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.stats-card-modern:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.2) !important;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.card-header-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 1.25rem 1.5rem;
+    border: none;
+}
+
+.card-header-gradient-success {
+    background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+    padding: 1.25rem 1.5rem;
+    border: none;
+}
+
+.card-header-gradient-info {
+    background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
+    padding: 1.25rem 1.5rem;
+    border: none;
+}
+
+.stat-item-modern {
+    padding: 1.25rem;
+    border-radius: 1rem;
+    transition: all 0.3s;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.03), rgba(118, 75, 162, 0.03));
+    border: 1px solid transparent;
+}
+
+.stat-item-modern:hover {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.08), rgba(118, 75, 162, 0.08));
+    transform: translateX(8px);
+    border-color: rgba(102, 126, 234, 0.2);
+}
+
+.stat-icon-circle {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.bg-primary-light { background: rgba(102, 126, 234, 0.1); }
+.bg-success-light { background: rgba(86, 171, 47, 0.1); }
+.bg-warning-light { background: rgba(255, 193, 7, 0.1); }
+.bg-info-light { background: rgba(33, 147, 176, 0.1); }
+.bg-purple-light { background: rgba(118, 75, 162, 0.1); }
+.bg-danger-light { background: rgba(220, 53, 69, 0.1); }
+
+.stat-label {
+    font-weight: 600;
+    color: #495057;
+    font-size: 0.95rem;
+}
+
+.bg-primary-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+}
+
+.progress-modern {
+    height: 18px;
+    border-radius: 12px;
+    background: rgba(0,0,0,0.05);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.bg-gradient-success {
+    background: linear-gradient(90deg, #56ab2f 0%, #a8e063 100%);
+}
+
+.impact-item-modern {
+    padding: 1.25rem;
+    border-radius: 1rem;
+    transition: all 0.3s;
+    background: linear-gradient(135deg, rgba(33, 147, 176, 0.03), rgba(109, 213, 237, 0.03));
+    border: 1px solid transparent;
+}
+
+.impact-item-modern:hover {
+    background: linear-gradient(135deg, rgba(33, 147, 176, 0.08), rgba(109, 213, 237, 0.08));
+    transform: translateX(8px);
+    border-color: rgba(33, 147, 176, 0.2);
+}
+
+.impact-icon-circle {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.modern-card {
+    border-radius: 1.25rem;
+    overflow: hidden;
+    animation: fadeInUp 0.6s ease-out 0.2s both;
+}
+
+.activity-item-modern {
+    border-radius: 1rem;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.03), rgba(118, 75, 162, 0.03));
+    transition: all 0.3s;
+    border-left: 4px solid transparent;
+}
+
+.activity-item-modern:hover {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+    border-left-color: #667eea;
+    transform: translateX(8px);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.15);
+}
+
+.activity-icon-modern {
+    font-size: 2rem;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+    flex-shrink: 0;
+    transition: transform 0.3s;
+}
+
+.activity-item-modern:hover .activity-icon-modern {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.activity-title-modern {
+    font-size: 1.1rem;
+    color: #2c3e50;
+}
+
+.badge-item-modern {
+    background: linear-gradient(135deg, rgba(102,126,234,0.05) 0%, rgba(118,75,162,0.05) 100%);
+    border: 2px solid rgba(102,126,234,0.15);
+    border-radius: 1rem;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.badge-item-modern:hover {
+    transform: translateY(-10px) scale(1.05);
+    box-shadow: 0 20px 40px rgba(102,126,234,0.25);
+    border-color: #667eea;
+    background: linear-gradient(135deg, rgba(102,126,234,0.1) 0%, rgba(118,75,162,0.1) 100%);
+}
+
+.badge-icon-modern {
+    transition: transform 0.3s;
+}
+
+.badge-item-modern:hover .badge-icon-modern {
+    transform: scale(1.2) rotate(15deg);
+}
+
+.btn-primary-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    color: white;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-primary-gradient:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(102,126,234,0.4);
+    color: white;
+}
+
+.bg-success-gradient {
+    background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+    border: none;
+}
+
+.btn-outline-primary {
+    border: 2px solid #667eea;
+    color: #667eea;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-outline-primary:hover {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: transparent;
+    color: white;
+    transform: translateY(-2px);
+}
+
+.empty-state {
+    padding: 3rem 2rem;
+}
+
+.empty-icon {
+    animation: float 3s ease-in-out infinite;
+}
+
+@media (max-width: 768px) {
+    .profile-header-modern {
+        padding: 2rem !important;
+    }
+    
+    .points-number-large {
+        font-size: 2rem;
+    }
+}
+</style>
+{% endblock %}

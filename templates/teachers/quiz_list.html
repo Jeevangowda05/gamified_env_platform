@@ -1,0 +1,64 @@
+{% extends 'teachers/base.html' %}
+
+{% block title %}Manage Quizzes{% endblock %}
+
+{% block teacher_content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Quizzes</h5>
+        <a href="{% url 'teacher:quiz_create' %}" class="btn btn-primary btn-sm">Create Quiz</a>
+    </div>
+    <div class="card-body border-bottom">
+        <form class="row g-2" method="get">
+            <div class="col-md-6">
+                <input type="search" class="form-control" name="q" value="{{ search_query }}" placeholder="Search quizzes...">
+            </div>
+            <div class="col-md-2">
+                <select name="difficulty" class="form-select">
+                    <option value="">All Levels</option>
+                    <option value="easy" {% if selected_difficulty == 'easy' %}selected{% endif %}>Easy</option>
+                    <option value="medium" {% if selected_difficulty == 'medium' %}selected{% endif %}>Medium</option>
+                    <option value="hard" {% if selected_difficulty == 'hard' %}selected{% endif %}>Hard</option>
+                    <option value="expert" {% if selected_difficulty == 'expert' %}selected{% endif %}>Expert</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="status" class="form-select">
+                    <option value="">All</option>
+                    <option value="published" {% if selected_status == 'published' %}selected{% endif %}>Published</option>
+                    <option value="draft" {% if selected_status == 'draft' %}selected{% endif %}>Draft</option>
+                    <option value="scheduled" {% if selected_status == 'scheduled' %}selected{% endif %}>Scheduled</option>
+                    <option value="live" {% if selected_status == 'live' %}selected{% endif %}>Live</option>
+                    <option value="closed" {% if selected_status == 'closed' %}selected{% endif %}>Closed</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-outline-primary w-100" type="submit">Filter</button>
+            </div>
+        </form>
+    </div>
+    <div class="table-responsive">
+        <table class="table mb-0">
+            <thead><tr><th>Title</th><th>Category</th><th>Difficulty</th><th>Status</th><th>Published</th><th>Actions</th></tr></thead>
+            <tbody>
+            {% for quiz in quizzes %}
+                <tr>
+                    <td>{{ quiz.title }}</td>
+                    <td>{{ quiz.category }}</td>
+                    <td>{{ quiz.get_difficulty_display }}</td>
+                    <td><span class="badge bg-{% if quiz.get_quiz_status == 'live' %}success{% elif quiz.get_quiz_status == 'scheduled' %}warning text-dark{% elif quiz.get_quiz_status == 'closed' %}secondary{% else %}dark{% endif %}">{{ quiz.get_quiz_status_display_label }}</span></td>
+                    <td>{% if quiz.is_published %}Yes{% else %}No{% endif %}</td>
+                    <td>
+                        <a href="{% url 'teacher:quiz_questions' quiz.id %}" class="btn btn-outline-primary btn-sm">Questions</a>
+                        <a href="{% url 'teacher:quiz_update' quiz.id %}" class="btn btn-outline-secondary btn-sm">Edit</a>
+                        <a href="{% url 'teacher:quiz_delete' quiz.id %}" class="btn btn-outline-danger btn-sm">Delete</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="6" class="text-center text-muted py-4">No quizzes created yet.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

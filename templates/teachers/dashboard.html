@@ -1,0 +1,412 @@
+{% extends 'teachers/base.html' %}
+
+{% block title %}Teacher Dashboard{% endblock %}
+<style>
+.dashboard-page {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding-bottom: 3rem;
+}
+
+.welcome-card {
+    background: linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.95) 100%);
+    backdrop-filter: blur(30px);
+    border-radius: 28px;
+    padding: 3rem;
+    margin-bottom: 2.5rem;
+    box-shadow: 0 25px 70px rgba(0,0,0,0.18);
+    border: 1px solid rgba(255,255,255,0.4);
+    position: relative;
+    overflow: hidden;
+}
+
+.welcome-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 450px;
+    height: 450px;
+    background: linear-gradient(135deg, rgba(102,126,234,0.12), rgba(118,75,162,0.12));
+    border-radius: 50%;
+    animation: float 15s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(30px, 30px); }
+}
+
+.welcome-title {
+    font-size: 2.5rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.85rem;
+}
+
+.welcome-subtitle {
+    color: #6c757d;
+    font-size: 1.15rem;
+    line-height: 1.6;
+}
+
+.quick-stats span {
+    background: linear-gradient(135deg, rgba(102,126,234,0.12), rgba(118,75,162,0.08));
+    padding: 0.85rem 1.4rem;
+    border-radius: 50px;
+    font-weight: 700;
+    color: #495057;
+    transition: all 0.4s;
+    border: 2px solid transparent;
+}
+
+.quick-stats span:hover {
+    background: linear-gradient(135deg, rgba(102,126,234,0.25), rgba(118,75,162,0.2));
+    transform: translateY(-3px);
+    border-color: rgba(102,126,234,0.3);
+    box-shadow: 0 8px 20px rgba(102,126,234,0.2);
+}
+
+.stat-card {
+    background: white;
+    border-radius: 24px;
+    padding: 2.5rem;
+    box-shadow: 0 12px 35px rgba(0,0,0,0.1);
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    height: 100%;
+    border: 2px solid rgba(0,0,0,0.05);
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 6px;
+    background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
+    transform: scaleX(0);
+    transition: transform 0.4s;
+}
+
+.stat-card:hover::before {
+    transform: scaleX(1);
+}
+
+.stat-card:hover {
+    transform: translateY(-12px) scale(1.03);
+    box-shadow: 0 25px 60px rgba(102,126,234,0.25);
+    border-color: rgba(102,126,234,0.2);
+}
+
+.stat-number {
+    font-size: 3.5rem;
+    font-weight: 900;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: countUp 1.5s ease-out;
+}
+
+@keyframes countUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.stat-label {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #6c757d;
+}
+
+.stat-icon {
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    box-shadow: 0 10px 30px rgba(102,126,234,0.35);
+    transition: all 0.3s;
+}
+
+.stat-card:hover .stat-icon {
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 15px 40px rgba(102,126,234,0.5);
+}
+
+/* Progress indicator below stats */
+.stat-progress {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: linear-gradient(135deg, rgba(102,126,234,0.08), rgba(118,75,162,0.05));
+    border-radius: 12px;
+    margin-top: 1.25rem;
+    transition: all 0.3s;
+}
+
+.stat-progress:hover {
+    background: linear-gradient(135deg, rgba(102,126,234,0.15), rgba(118,75,162,0.1));
+}
+
+.stat-progress i {
+    font-size: 1.1rem;
+}
+
+.stat-progress-text {
+    font-size: 0.9rem;
+    font-weight: 700;
+    flex: 1;
+}
+
+/* Status colors */
+.stat-progress.success { color: #28a745; }
+.stat-progress.success i { color: #28a745; }
+
+.stat-progress.info { color: #17a2b8; }
+.stat-progress.info i { color: #17a2b8; }
+
+.stat-progress.warning { color: #ffc107; }
+.stat-progress.warning i { color: #ffc107; }
+
+.stat-progress.primary { color: #667eea; }
+.stat-progress.primary i { color: #667eea; }
+
+.dashboard-card {
+    background: white;
+    border-radius: 28px;
+    box-shadow: 0 12px 35px rgba(0,0,0,0.1);
+    border: 2px solid rgba(0,0,0,0.05);
+    margin-bottom: 2.5rem;
+    overflow: hidden;
+}
+
+.dashboard-card .card-header {
+    background: linear-gradient(135deg, rgba(102,126,234,0.06), rgba(118,75,162,0.06));
+    border-bottom: 2px solid rgba(102,126,234,0.12);
+    padding: 1.75rem 2.25rem;
+}
+
+.dashboard-card .card-title {
+    font-weight: 800;
+    font-size: 1.4rem;
+    color: #2c3e50;
+}
+
+.course-progress-card {
+    background: linear-gradient(135deg, #f8f9fa, #ffffff);
+    border: 2px solid transparent;
+    transition: all 0.4s;
+    border-radius: 18px;
+}
+
+.course-progress-card:hover {
+    border-color: #667eea;
+    box-shadow: 0 10px 30px rgba(102,126,234,0.2);
+    transform: translateY(-5px);
+}
+
+.course-thumbnail {
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.12);
+}
+
+.progress {
+    height: 10px;
+    border-radius: 12px;
+    background: rgba(102,126,234,0.12);
+}
+
+.progress-bar {
+    background: linear-gradient(90deg, #56ab2f, #a8e063);
+    border-radius: 12px;
+    transition: width 1s ease-out;
+}
+
+.quick-action-card {
+    transition: all 0.4s;
+    border-radius: 18px;
+    border: 2px solid #e9ecef;
+    background: white;
+}
+
+.quick-action-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(102,126,234,0.2);
+    border-color: #667eea;
+}
+
+.quick-action-card i {
+    transition: transform 0.4s;
+}
+
+.quick-action-card:hover i {
+    transform: scale(1.2) rotate(10deg);
+}
+
+.activity-item {
+    padding: 1.25rem;
+    border-radius: 14px;
+    transition: all 0.3s;
+}
+
+.activity-item:hover {
+    background: rgba(102,126,234,0.08);
+    transform: translateX(5px);
+}
+
+.activity-icon {
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(102,126,234,0.12);
+    transition: all 0.3s;
+}
+
+.activity-item:hover .activity-icon {
+    background: rgba(102,126,234,0.2);
+    transform: scale(1.1);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 4.5rem 2rem;
+    color: #6c757d;
+}
+
+.empty-state i {
+    opacity: 0.5;
+}
+
+.level-progress-circle {
+    width: 150px;
+    height: 150px;
+    margin: 0 auto;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border: none;
+    border-radius: 14px;
+    padding: 0.85rem 1.75rem;
+    font-weight: 700;
+    transition: all 0.4s;
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px rgba(102,126,234,0.45);
+}
+
+.btn-outline-primary {
+    border: 2px solid #667eea;
+    color: #667eea;
+    border-radius: 14px;
+    padding: 0.6rem 1.4rem;
+    font-weight: 700;
+    transition: all 0.4s;
+}
+
+.btn-outline-primary:hover {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-color: transparent;
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(102,126,234,0.3);
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.stat-card, .dashboard-card {
+    animation: fadeInUp 0.7s ease-out forwards;
+}
+
+.stat-card:nth-child(1) { animation-delay: 0.1s; }
+.stat-card:nth-child(2) { animation-delay: 0.2s; }
+.stat-card:nth-child(3) { animation-delay: 0.3s; }
+.stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+/* Rank badge styles */
+.rank-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, #ffd700, #ffed4e);
+    border-radius: 20px;
+    font-weight: 900;
+    color: #2c3e50;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+}
+</style>
+{% block teacher_content %}
+<div class="row g-3 mb-4">
+    <div class="col-md-3"><div class="card teacher-stat"><div class="card-body"><h6>Courses</h6><h3>{{ courses_count }}</h3></div></div></div>
+    <div class="col-md-3"><div class="card teacher-stat"><div class="card-body"><h6>Quizzes</h6><h3>{{ quizzes_count }}</h3></div></div></div>
+    <div class="col-md-3"><div class="card teacher-stat"><div class="card-body"><h6>Enrollments</h6><h3>{{ enrollments_count }}</h3></div></div></div>
+    <div class="col-md-3"><div class="card teacher-stat"><div class="card-body"><h6>Completions</h6><h3>{{ completed_enrollments }}</h3></div></div></div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Students per Course</h5>
+                <a href="{% url 'teacher:analytics' %}" class="btn btn-sm btn-outline-primary">View analytics</a>
+            </div>
+            <div class="card-body">
+                <canvas id="teacherCourseChart" data-chart='{{ chart_payload_json|safe }}'></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card mb-3">
+            <div class="card-header"><h6 class="mb-0">Recent Courses</h6></div>
+            <ul class="list-group list-group-flush">
+                {% for course in recent_courses %}
+                <li class="list-group-item d-flex justify-content-between"><span>{{ course.title }}</span><span class="text-muted">{{ course.enrollments.count }} students</span></li>
+                {% empty %}
+                <li class="list-group-item text-muted">No courses yet.</li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="card">
+            <div class="card-header"><h6 class="mb-0">Recent Quizzes</h6></div>
+            <ul class="list-group list-group-flush">
+                {% for quiz in recent_quizzes %}
+                <li class="list-group-item">{{ quiz.title }}</li>
+                {% empty %}
+                <li class="list-group-item text-muted">No quizzes yet.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
