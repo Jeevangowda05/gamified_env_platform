@@ -31,6 +31,9 @@ urlpatterns = [
     path('course/<slug:slug>/lesson/<int:lesson_id>/quiz/', views.submit_quiz, name='submit_quiz'),
     path('topics/', views.topic_list, name='topic_list'),
     path('topic/<slug:slug>/', views.topic_detail, name='topic_detail'),
+    path('teacher/courses/<slug:slug>/resources/', views.TeacherResourceListView.as_view(), name='teacher_course_resources'),
+    path('teacher/courses/<slug:slug>/resources/add/', views.TeacherResourceCreateView.as_view(), name='teacher_course_resource_add'),
+    path('teacher/resources/<int:pk>/delete/', views.TeacherResourceDeleteView.as_view(), name='teacher_course_resource_delete'),
     # Utility endpoints
     path('health/', views.health_check, name='health_check'),
     path('robots.txt', views.robots_txt, name='robots_txt'),

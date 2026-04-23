@@ -1,0 +1,19 @@
+{% extends 'teachers/base.html' %}
+
+{% block title %}Add Course Resource{% endblock %}
+
+{% block teacher_content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Add Resource: {{ course.title }}</h5>
+        <a href="{% url 'teacher:course_builder' course.id %}" class="btn btn-outline-secondary btn-sm">Back to Course</a>
+    </div>
+    <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Upload Resource</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

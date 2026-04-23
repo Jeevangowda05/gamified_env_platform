@@ -194,12 +194,14 @@ def course_builder(request, course_id):
                 return redirect('teacher:course_builder', course_id=course.id)
 
     modules = course.modules.prefetch_related('lessons').all()
+    resources = course.resources.all()
     return render(
         request,
         'teachers/course_builder.html',
         {
             'course': course,
             'modules': modules,
+            'resources': resources,
             'module_form': module_form,
             'lesson_form': lesson_form,
             **_teacher_base_context(),
