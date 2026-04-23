@@ -811,6 +811,42 @@ button:focus {
                             </div>
                         {% endif %}
                     </div>
+
+                    <div class="section-header mt-4">
+                        <h2 class="section-title">
+                            <i class="fas fa-folder-open"></i>
+                            Course Resources
+                        </h2>
+                    </div>
+                    <div class="modules-list">
+                        {% if resources %}
+                            {% for resource in resources %}
+                            <div class="module-card">
+                                <div class="module-header">
+                                    <div class="module-title-section">
+                                        <div class="module-number">
+                                            <i class="fas fa-file-alt"></i>
+                                        </div>
+                                        <div class="module-title-text">{{ resource.title }}</div>
+                                    </div>
+                                    <a href="{{ resource.file.url }}" class="btn btn-outline-primary btn-sm" target="_blank" rel="noopener" download>
+                                        <i class="fas fa-download me-1"></i>Download
+                                    </a>
+                                </div>
+                                {% if resource.description %}
+                                <div class="lessons-list">
+                                    <p class="mb-0 text-muted">{{ resource.description }}</p>
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="empty-state">
+                                <i class="fas fa-folder-open"></i>
+                                <p>No course resources available yet.</p>
+                            </div>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
 

@@ -3,21 +3,21 @@ Core views for the Gamified Environmental Education Platform
 Handles main dashboard, home page, and core functionality
 """
 
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import TemplateView, ListView
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.views.generic import TemplateView, ListView, CreateView, DeleteView
 from django.db.models import Count, Q, Avg
 from django.contrib import messages
 from django.utils import timezone
 from datetime import datetime, timedelta
 from django.http import JsonResponse, HttpResponse
 from django.contrib.auth import get_user_model
-from .models import Course, Module, Lesson, Enrollment, LessonProgress, Certificate
+from .models import Course, Module, Lesson, Enrollment, LessonProgress, Certificate, CourseResource
 from apps.core.models import Topic
-from django.shortcuts import get_object_or_404
+from .forms import CourseResourceForm
 from apps.gamification.models import UserProgress, UserBadge
-from apps.teachers.models import StudentNotification, TeacherNotification
+from apps.teachers.models import StudentNotification, TeacherNotification, TeacherCourse
 from apps.teachers.utils import create_teacher_notification_for_course
 from django.views.decorators.http import require_POST
 from django.urls import reverse
@@ -29,6 +29,7 @@ from rest_framework import status
 
 def course_detail(request, slug):
     course = get_object_or_404(Course, slug=slug)
+    resources = course.resources.all()
     enrollment = None
     progress_percentage = 0
     
@@ -41,6 +42,7 @@ def course_detail(request, slug):
     
     context = {
         'course': course,
+        'resources': resources,
         'enrollment': enrollment,
         'progress_percentage': progress_percentage,
     }
@@ -164,6 +166,7 @@ def course_learn(request, slug):
     
     context = {
         'course': course,
+        'resources': course.resources.all(),
         'enrollment': enrollment,
         'modules': modules,
         'current_lesson': current_lesson,
@@ -179,6 +182,91 @@ def course_learn(request, slug):
         'current_lesson_progress': current_lesson_progress,
     }
     return render(request, 'core/course_learn.html', context)
+
+
+class TeacherRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    def test_func(self):
+        return self.request.user.user_type == 'teacher' or self.request.user.is_superuser
+
+    def handle_no_permission(self):
+        if self.request.user.is_authenticated:
+            messages.error(self.request, 'You need a teacher account to access this page.')
+            return redirect('core:dashboard')
+        return super().handle_no_permission()
+
+
+class TeacherOwnedCourseMixin(TeacherRequiredMixin):
+    course = None
+
+    def get_course(self):
+        if self.course is not None:
+            return self.course
+
+        slug = self.kwargs.get('slug')
+        if self.request.user.is_superuser:
+            self.course = get_object_or_404(Course, slug=slug)
+        else:
+            teacher_course = get_object_or_404(
+                TeacherCourse.objects.select_related('course'),
+                teacher=self.request.user,
+                course__slug=slug,
+            )
+            self.course = teacher_course.course
+        return self.course
+
+
+class TeacherResourceListView(TeacherOwnedCourseMixin, ListView):
+    model = CourseResource
+    context_object_name = 'resources'
+    template_name = 'teachers/course_resources_list.html'
+
+    def get_queryset(self):
+        course = self.get_course()
+        return course.resources.select_related('uploaded_by').all()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['course'] = self.get_course()
+        return context
+
+
+class TeacherResourceCreateView(TeacherOwnedCourseMixin, CreateView):
+    model = CourseResource
+    form_class = CourseResourceForm
+    template_name = 'teachers/course_resource_form.html'
+
+    def form_valid(self, form):
+        form.instance.course = self.get_course()
+        form.instance.uploaded_by = self.request.user
+        messages.success(self.request, 'Course resource uploaded successfully.')
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('teacher:course_builder', kwargs={'course_id': self.get_course().id})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['course'] = self.get_course()
+        return context
+
+
+class TeacherResourceDeleteView(TeacherRequiredMixin, DeleteView):
+    model = CourseResource
+    context_object_name = 'resource'
+    template_name = 'teachers/course_resource_confirm_delete.html'
+
+    def get_queryset(self):
+        queryset = CourseResource.objects.select_related('course')
+        if self.request.user.is_superuser:
+            return queryset
+        return queryset.filter(course__teacher_assignment__teacher=self.request.user)
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Course resource deleted successfully.')
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('teacher:course_builder', kwargs={'course_id': self.object.course.id})
 
 
 @login_required

@@ -139,4 +139,36 @@
         {% endfor %}
     </div>
 </div>
+<div class="card mt-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="mb-0">Resources</h6>
+        <div class="d-flex gap-2">
+            <a href="{% url 'core:teacher_course_resources' course.slug %}" class="btn btn-outline-secondary btn-sm">View All</a>
+            <a href="{% url 'core:teacher_course_resource_add' course.slug %}" class="btn btn-primary btn-sm">Add Resource</a>
+        </div>
+    </div>
+    <div class="card-body">
+        <ul class="list-group">
+            {% for resource in resources %}
+            <li class="list-group-item d-flex justify-content-between align-items-start gap-3 flex-wrap">
+                <div>
+                    <h6 class="mb-1">{{ resource.title }}</h6>
+                    {% if resource.description %}
+                    <p class="mb-1 text-muted small">{{ resource.description }}</p>
+                    {% endif %}
+                    <p class="mb-0 text-muted small">
+                        {{ resource.file.name }} • {{ resource.created_at|date:"M d, Y H:i" }}
+                    </p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{{ resource.file.url }}" class="btn btn-outline-primary btn-sm" target="_blank" rel="noopener">Download</a>
+                    <a href="{% url 'core:teacher_course_resource_delete' resource.id %}" class="btn btn-outline-danger btn-sm">Delete</a>
+                </div>
+            </li>
+            {% empty %}
+            <li class="list-group-item text-muted">No resources uploaded yet.</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
 {% endblock %}
