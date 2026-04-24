@@ -2,3 +2,4 @@ __pycache__/
 *.py[cod]
 .pytest_cache/
 media/challenge_proofs/
+media/course_resources/

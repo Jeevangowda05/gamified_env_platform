@@ -2,6 +2,8 @@
 Core models for the platform
 """
 
+import os
+
 from django.db import models
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -181,7 +183,11 @@ class CourseResource(models.Model):
     def __str__(self):
         return self.title
 
-    
+    def get_file_name(self):
+        """Return just the filename (without the upload path)."""
+        return os.path.basename(self.file.name) if self.file else ''
+
+
 class Module(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='modules')
     title = models.CharField(max_length=200)
