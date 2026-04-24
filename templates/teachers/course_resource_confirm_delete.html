@@ -40,7 +40,7 @@
                     <div class="text-muted small">
                         <i class="fas fa-calendar me-1"></i>Uploaded {{ resource.created_at|date:"M d, Y" }}
                         {% if resource.file.size %}
-                        &nbsp;·&nbsp;<i class="fas fa-weight me-1"></i>{{ resource.file.size|filesizeformat }}
+                        &nbsp;·&nbsp;<i class="fas fa-file me-1"></i>{{ resource.file.size|filesizeformat }}
                         {% endif %}
                     </div>
                 </div>

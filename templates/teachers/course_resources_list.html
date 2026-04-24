@@ -70,15 +70,11 @@
                             </div>
                         </td>
                         <td class="d-none d-md-table-cell text-muted small">
-                            {{ resource.file.name|slice:"resource.file.name.rfind('/')+1:" }}
+                            {{ resource.get_file_name }}
                         </td>
                         <td class="d-none d-sm-table-cell text-muted small">
                             {% if resource.file.size %}
-                                {% if resource.file.size >= 1048576 %}
-                                    {{ resource.file.size|filesizeformat }}
-                                {% else %}
-                                    {{ resource.file.size|filesizeformat }}
-                                {% endif %}
+                                {{ resource.file.size|filesizeformat }}
                             {% else %}
                                 —
                             {% endif %}
