@@ -1,36 +1,130 @@
 {% extends 'teachers/base.html' %}
 
-{% block title %}Course Resources{% endblock %}
+{% block title %}Course Resources – {{ course.title }}{% endblock %}
 
 {% block teacher_content %}
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'teacher:course_list' %}">My Courses</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'teacher:course_builder' course.id %}">{{ course.title }}</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Resources</li>
+    </ol>
+</nav>
+
 <div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">Resources: {{ course.title }}</h5>
+    <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h5 class="mb-0">
+            <i class="fas fa-folder-open me-2 text-primary"></i>Resources: {{ course.title }}
+        </h5>
         <div class="d-flex gap-2">
-            <a href="{% url 'core:teacher_course_resource_add' course.slug %}" class="btn btn-primary btn-sm">Add Resource</a>
-            <a href="{% url 'teacher:course_builder' course.id %}" class="btn btn-outline-secondary btn-sm">Back to Course</a>
+            <a href="{% url 'core:teacher_course_resource_add' course.slug %}" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus me-1"></i>Add Resource
+            </a>
+            <a href="{% url 'teacher:course_builder' course.id %}" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-arrow-left me-1"></i>Back to Course
+            </a>
         </div>
     </div>
-    <div class="card-body">
-        <ul class="list-group">
-            {% for resource in resources %}
-            <li class="list-group-item d-flex justify-content-between align-items-start gap-3 flex-wrap">
-                <div>
-                    <h6 class="mb-1">{{ resource.title }}</h6>
-                    {% if resource.description %}
-                    <p class="mb-1 text-muted small">{{ resource.description }}</p>
-                    {% endif %}
-                    <p class="mb-0 text-muted small">{{ resource.file.name }} • {{ resource.created_at|date:"M d, Y H:i" }}</p>
-                </div>
-                <div class="d-flex gap-2">
-                    <a href="{{ resource.file.url }}" class="btn btn-outline-primary btn-sm" target="_blank" rel="noopener">Download</a>
-                    <a href="{% url 'core:teacher_course_resource_delete' resource.id %}" class="btn btn-outline-danger btn-sm">Delete</a>
-                </div>
-            </li>
-            {% empty %}
-            <li class="list-group-item text-muted">No resources uploaded yet.</li>
-            {% endfor %}
-        </ul>
+    <div class="card-body p-0">
+        {% if resources %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th scope="col" class="ps-3">Title</th>
+                        <th scope="col" class="d-none d-md-table-cell">File</th>
+                        <th scope="col" class="d-none d-sm-table-cell">Size</th>
+                        <th scope="col" class="d-none d-lg-table-cell">Uploaded</th>
+                        <th scope="col" class="text-end pe-3">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for resource in resources %}
+                    <tr>
+                        <td class="ps-3">
+                            <div class="d-flex align-items-center gap-2">
+                                {% with ext=resource.file.name|lower %}
+                                {% if ".pdf" in ext %}
+                                    <i class="fas fa-file-pdf fa-lg text-danger"></i>
+                                {% elif ".doc" in ext or ".docx" in ext %}
+                                    <i class="fas fa-file-word fa-lg text-primary"></i>
+                                {% elif ".ppt" in ext or ".pptx" in ext %}
+                                    <i class="fas fa-file-powerpoint fa-lg text-warning"></i>
+                                {% elif ".xls" in ext or ".xlsx" in ext %}
+                                    <i class="fas fa-file-excel fa-lg text-success"></i>
+                                {% elif ".jpg" in ext or ".jpeg" in ext or ".png" in ext or ".gif" in ext %}
+                                    <i class="fas fa-file-image fa-lg text-info"></i>
+                                {% elif ".zip" in ext or ".rar" in ext %}
+                                    <i class="fas fa-file-archive fa-lg text-secondary"></i>
+                                {% else %}
+                                    <i class="fas fa-file fa-lg text-muted"></i>
+                                {% endif %}
+                                {% endwith %}
+                                <div>
+                                    <div class="fw-semibold">{{ resource.title }}</div>
+                                    {% if resource.description %}
+                                    <div class="text-muted small">{{ resource.description|truncatechars:80 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
+                        <td class="d-none d-md-table-cell text-muted small">
+                            {{ resource.file.name|slice:"resource.file.name.rfind('/')+1:" }}
+                        </td>
+                        <td class="d-none d-sm-table-cell text-muted small">
+                            {% if resource.file.size %}
+                                {% if resource.file.size >= 1048576 %}
+                                    {{ resource.file.size|filesizeformat }}
+                                {% else %}
+                                    {{ resource.file.size|filesizeformat }}
+                                {% endif %}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+                        <td class="d-none d-lg-table-cell text-muted small">
+                            {{ resource.created_at|date:"M d, Y" }}<br>
+                            <span class="text-muted">{{ resource.created_at|date:"H:i" }}</span>
+                        </td>
+                        <td class="text-end pe-3">
+                            <div class="d-flex justify-content-end gap-2">
+                                <a href="{{ resource.file.url }}"
+                                   class="btn btn-outline-primary btn-sm"
+                                   target="_blank"
+                                   rel="noopener"
+                                   title="Download">
+                                    <i class="fas fa-download"></i>
+                                    <span class="d-none d-md-inline ms-1">Download</span>
+                                </a>
+                                <a href="{% url 'core:teacher_course_resource_delete' resource.id %}"
+                                   class="btn btn-outline-danger btn-sm"
+                                   title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                    <span class="d-none d-md-inline ms-1">Delete</span>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+            <h6 class="text-muted">No resources uploaded yet</h6>
+            <p class="text-muted small mb-3">Upload PDFs, Word documents, presentations, images, and more for your students.</p>
+            <a href="{% url 'core:teacher_course_resource_add' course.slug %}" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i>Upload First Resource
+            </a>
+        </div>
+        {% endif %}
     </div>
+    {% if resources %}
+    <div class="card-footer text-muted small">
+        {{ resources|length }} resource{{ resources|length|pluralize }} uploaded
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

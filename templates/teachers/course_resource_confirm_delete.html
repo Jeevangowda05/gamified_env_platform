@@ -1,19 +1,63 @@
 {% extends 'teachers/base.html' %}
 
-{% block title %}Delete Course Resource{% endblock %}
+{% block title %}Delete Resource – {{ resource.title }}{% endblock %}
 
 {% block teacher_content %}
-<div class="card">
-    <div class="card-header">
-        <h5 class="mb-0">Delete Resource</h5>
-    </div>
-    <div class="card-body">
-        <p>Are you sure you want to delete <strong>{{ resource.title }}</strong>?</p>
-        <form method="post">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-danger">Delete</button>
-            <a href="{% url 'teacher:course_builder' resource.course.id %}" class="btn btn-outline-secondary">Cancel</a>
-        </form>
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'teacher:course_list' %}">My Courses</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'teacher:course_builder' resource.course.id %}">{{ resource.course.title }}</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'core:teacher_course_resources' resource.course.slug %}">Resources</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Delete</li>
+    </ol>
+</nav>
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Delete Resource
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning d-flex align-items-start gap-2" role="alert">
+                    <i class="fas fa-exclamation-circle mt-1 flex-shrink-0"></i>
+                    <span>This action is <strong>permanent</strong> and cannot be undone. The file will be removed and students will no longer be able to access it.</span>
+                </div>
+
+                <p class="mb-3">You are about to delete the following resource:</p>
+
+                <div class="p-3 bg-light rounded mb-4">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <i class="fas fa-file fa-lg text-muted"></i>
+                        <span class="fw-semibold">{{ resource.title }}</span>
+                    </div>
+                    {% if resource.description %}
+                    <p class="text-muted small mb-2">{{ resource.description }}</p>
+                    {% endif %}
+                    <div class="text-muted small">
+                        <i class="fas fa-calendar me-1"></i>Uploaded {{ resource.created_at|date:"M d, Y" }}
+                        {% if resource.file.size %}
+                        &nbsp;·&nbsp;<i class="fas fa-weight me-1"></i>{{ resource.file.size|filesizeformat }}
+                        {% endif %}
+                    </div>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash me-1"></i>Delete Permanently
+                        </button>
+                        <a href="{% url 'core:teacher_course_resources' resource.course.slug %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-1"></i>Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

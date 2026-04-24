@@ -1,19 +1,80 @@
 {% extends 'teachers/base.html' %}
 
-{% block title %}Add Course Resource{% endblock %}
+{% block title %}Add Resource – {{ course.title }}{% endblock %}
 
 {% block teacher_content %}
-<div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">Add Resource: {{ course.title }}</h5>
-        <a href="{% url 'teacher:course_builder' course.id %}" class="btn btn-outline-secondary btn-sm">Back to Course</a>
-    </div>
-    <div class="card-body">
-        <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn btn-primary">Upload Resource</button>
-        </form>
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'teacher:course_list' %}">My Courses</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'teacher:course_builder' course.id %}">{{ course.title }}</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'core:teacher_course_resources' course.slug %}">Resources</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Add Resource</li>
+    </ol>
+</nav>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-upload me-2 text-primary"></i>Add Resource: {{ course.title }}
+                </h5>
+                <a href="{% url 'core:teacher_course_resources' course.slug %}" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-arrow-left me-1"></i>Back to Resources
+                </a>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data" novalidate>
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label for="{{ form.title.id_for_label }}" class="form-label fw-semibold">
+                            Title <span class="text-danger">*</span>
+                        </label>
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                        <div class="text-danger small mt-1">{{ form.title.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.description.id_for_label }}" class="form-label fw-semibold">
+                            Description
+                        </label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                        <div class="text-danger small mt-1">{{ form.description.errors.0 }}</div>
+                        {% endif %}
+                        <div class="form-text">Optional notes visible to enrolled students.</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="{{ form.file.id_for_label }}" class="form-label fw-semibold">
+                            File <span class="text-danger">*</span>
+                        </label>
+                        {{ form.file }}
+                        {% if form.file.errors %}
+                        <div class="text-danger small mt-1">{{ form.file.errors.0 }}</div>
+                        {% endif %}
+                        <div class="form-text">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Accepted formats: PDF, Word (.doc/.docx), PowerPoint (.ppt/.pptx),
+                            Excel (.xls/.xlsx), images (JPG, PNG, GIF), text files, ZIP. Max size: 50 MB.
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-upload me-1"></i>Upload Resource
+                        </button>
+                        <a href="{% url 'core:teacher_course_resources' course.slug %}" class="btn btn-outline-secondary">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
