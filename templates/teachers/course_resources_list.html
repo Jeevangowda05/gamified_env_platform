@@ -15,7 +15,7 @@
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
         <h5 class="mb-0">
-            <i class="fas fa-folder-open me-2 text-primary"></i>Resources: {{ course.title }}
+            <i class="fas fa-download me-2 text-primary"></i>Resources: {{ course.title }}
         </h5>
         <div class="d-flex gap-2">
             <a href="{% url 'core:teacher_course_resource_add' course.slug %}" class="btn btn-primary btn-sm">
@@ -26,85 +26,79 @@
             </a>
         </div>
     </div>
-    <div class="card-body p-0">
+    <div class="card-body">
         {% if resources %}
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th scope="col" class="ps-3">Title</th>
-                        <th scope="col" class="d-none d-md-table-cell">File</th>
-                        <th scope="col" class="d-none d-sm-table-cell">Size</th>
-                        <th scope="col" class="d-none d-lg-table-cell">Uploaded</th>
-                        <th scope="col" class="text-end pe-3">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for resource in resources %}
-                    <tr>
-                        <td class="ps-3">
-                            <div class="d-flex align-items-center gap-2">
-                                {% with ext=resource.file.name|lower %}
-                                {% if ".pdf" in ext %}
-                                    <i class="fas fa-file-pdf fa-lg text-danger"></i>
-                                {% elif ".doc" in ext or ".docx" in ext %}
-                                    <i class="fas fa-file-word fa-lg text-primary"></i>
-                                {% elif ".ppt" in ext or ".pptx" in ext %}
-                                    <i class="fas fa-file-powerpoint fa-lg text-warning"></i>
-                                {% elif ".xls" in ext or ".xlsx" in ext %}
-                                    <i class="fas fa-file-excel fa-lg text-success"></i>
-                                {% elif ".jpg" in ext or ".jpeg" in ext or ".png" in ext or ".gif" in ext %}
-                                    <i class="fas fa-file-image fa-lg text-info"></i>
-                                {% elif ".zip" in ext or ".rar" in ext %}
-                                    <i class="fas fa-file-archive fa-lg text-secondary"></i>
-                                {% else %}
-                                    <i class="fas fa-file fa-lg text-muted"></i>
-                                {% endif %}
-                                {% endwith %}
-                                <div>
-                                    <div class="fw-semibold">{{ resource.title }}</div>
-                                    {% if resource.description %}
-                                    <div class="text-muted small">{{ resource.description|truncatechars:80 }}</div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </td>
-                        <td class="d-none d-md-table-cell text-muted small">
-                            {{ resource.get_file_name }}
-                        </td>
-                        <td class="d-none d-sm-table-cell text-muted small">
-                            {% if resource.file.size %}
-                                {{ resource.file.size|filesizeformat }}
+        <div class="row g-3">
+            {% for resource in resources %}
+            <div class="col-12 col-md-6 col-xl-4">
+                <div class="card h-100 shadow-sm border">
+                    <!-- Card header: file-type icon + view button -->
+                    <div class="card-header d-flex justify-content-between align-items-center py-2 px-3">
+                        <span>
+                            {% with ext=resource.file.name|lower %}
+                            {% if ".pdf" in ext %}
+                                <i class="fas fa-file-pdf fa-lg text-danger me-1"></i>
+                                <span class="badge bg-danger-subtle text-danger small">PDF</span>
+                            {% elif ".doc" in ext or ".docx" in ext %}
+                                <i class="fas fa-file-word fa-lg text-primary me-1"></i>
+                                <span class="badge bg-primary-subtle text-primary small">DOCX</span>
+                            {% elif ".ppt" in ext or ".pptx" in ext %}
+                                <i class="fas fa-file-powerpoint fa-lg text-warning me-1"></i>
+                                <span class="badge bg-warning-subtle text-warning small">PPT</span>
+                            {% elif ".xls" in ext or ".xlsx" in ext %}
+                                <i class="fas fa-file-excel fa-lg text-success me-1"></i>
+                                <span class="badge bg-success-subtle text-success small">XLSX</span>
+                            {% elif ".jpg" in ext or ".jpeg" in ext or ".png" in ext or ".gif" in ext %}
+                                <i class="fas fa-file-image fa-lg text-info me-1"></i>
+                                <span class="badge bg-info-subtle text-info small">IMG</span>
+                            {% elif ".zip" in ext or ".rar" in ext %}
+                                <i class="fas fa-file-archive fa-lg text-secondary me-1"></i>
+                                <span class="badge bg-secondary-subtle text-secondary small">ZIP</span>
                             {% else %}
-                                —
+                                <i class="fas fa-file fa-lg text-muted me-1"></i>
+                                <span class="badge bg-secondary-subtle text-secondary small">FILE</span>
                             {% endif %}
-                        </td>
-                        <td class="d-none d-lg-table-cell text-muted small">
-                            {{ resource.created_at|date:"M d, Y" }}<br>
-                            <span class="text-muted">{{ resource.created_at|date:"H:i" }}</span>
-                        </td>
-                        <td class="text-end pe-3">
-                            <div class="d-flex justify-content-end gap-2">
-                                <a href="{{ resource.file.url }}"
-                                   class="btn btn-outline-primary btn-sm"
-                                   target="_blank"
-                                   rel="noopener"
-                                   title="Download">
-                                    <i class="fas fa-download"></i>
-                                    <span class="d-none d-md-inline ms-1">Download</span>
-                                </a>
-                                <a href="{% url 'core:teacher_course_resource_delete' resource.id %}"
-                                   class="btn btn-outline-danger btn-sm"
-                                   title="Delete">
-                                    <i class="fas fa-trash"></i>
-                                    <span class="d-none d-md-inline ms-1">Delete</span>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                            {% endwith %}
+                        </span>
+                        <!-- View button prominently in card header -->
+                        <a href="{{ resource.file.url }}"
+                           class="btn btn-sm btn-outline-info"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           title="View file in a new tab">
+                            <i class="fas fa-eye me-1"></i>View
+                        </a>
+                    </div>
+                    <div class="card-body py-2 px-3">
+                        <h6 class="fw-semibold mb-1">{{ resource.title }}</h6>
+                        {% if resource.description %}
+                        <p class="text-muted small mb-2">{{ resource.description|truncatechars:100 }}</p>
+                        {% endif %}
+                        <div class="d-flex flex-wrap gap-2 text-muted small">
+                            <span><i class="fas fa-file me-1"></i>{{ resource.get_file_name }}</span>
+                            {% if resource.file.size %}
+                            <span><i class="fas fa-weight-hanging me-1"></i>{{ resource.file.size|filesizeformat }}</span>
+                            {% endif %}
+                            <span><i class="fas fa-calendar me-1"></i>{{ resource.created_at|date:"M d, Y" }}</span>
+                        </div>
+                    </div>
+                    <div class="card-footer d-flex justify-content-between align-items-center py-2 px-3">
+                        <!-- Download button with forced download attribute -->
+                        <a href="{{ resource.file.url }}"
+                           class="btn btn-sm btn-primary"
+                           download="{{ resource.get_file_name }}"
+                           title="Download file">
+                            <i class="fas fa-download me-1"></i>Download
+                        </a>
+                        <a href="{% url 'core:teacher_course_resource_delete' resource.id %}"
+                           class="btn btn-sm btn-outline-danger"
+                           title="Delete resource">
+                            <i class="fas fa-trash me-1"></i>Delete
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
         </div>
         {% else %}
         <div class="text-center py-5">

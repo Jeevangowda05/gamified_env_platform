@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Projects – EcoLearn Platform{% endblock %}
+{% block body_class %}projects-page{% endblock %}
+
+{% block extra_css %}
+<style>
+.projects-page { background: #f8f9fa; min-height: 100vh; }
+.project-card { transition: transform .2s, box-shadow .2s; }
+.project-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.12); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="mb-1"><i class="fas fa-folder-open me-2 text-primary"></i>My Projects</h2>
+            <p class="text-muted mb-0">Manage and showcase your academic work.</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <a href="{% url 'core:create_overall_project' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i>New Overall Project
+            </a>
+            <a href="{% url 'core:create_subject_project' %}" class="btn btn-outline-primary">
+                <i class="fas fa-plus me-1"></i>New Subject Project
+            </a>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mb-4" id="projectTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link {% if active_tab != 'subject' %}active{% endif %}"
+                    id="overall-tab" data-bs-toggle="tab" data-bs-target="#overall"
+                    type="button" role="tab">
+                <i class="fas fa-globe me-1"></i>Overall Projects
+                <span class="badge bg-secondary ms-1">{{ overall_projects|length }}</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link {% if active_tab == 'subject' %}active{% endif %}"
+                    id="subject-tab" data-bs-toggle="tab" data-bs-target="#subject"
+                    type="button" role="tab">
+                <i class="fas fa-book me-1"></i>Subject-wise Projects
+                <span class="badge bg-secondary ms-1">{{ subject_projects|length }}</span>
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="projectTabContent">
+        <!-- Overall Projects Tab -->
+        <div class="tab-pane fade {% if active_tab != 'subject' %}show active{% endif %}" id="overall" role="tabpanel">
+            {% if overall_projects %}
+            <div class="row g-3">
+                {% for project in overall_projects %}
+                <div class="col-12 col-md-6 col-xl-4">
+                    {% include 'core/_project_card.html' with project=project %}
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-folder-open fa-3x text-muted mb-3 d-block"></i>
+                <h6 class="text-muted">No overall projects yet</h6>
+                <a href="{% url 'core:create_overall_project' %}" class="btn btn-primary mt-2">
+                    <i class="fas fa-plus me-1"></i>Create First Overall Project
+                </a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Subject-wise Projects Tab -->
+        <div class="tab-pane fade {% if active_tab == 'subject' %}show active{% endif %}" id="subject" role="tabpanel">
+            {% if subject_projects %}
+            <div class="row g-3">
+                {% for project in subject_projects %}
+                <div class="col-12 col-md-6 col-xl-4">
+                    {% include 'core/_project_card.html' with project=project %}
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-book fa-3x text-muted mb-3 d-block"></i>
+                <h6 class="text-muted">No subject-wise projects yet</h6>
+                <a href="{% url 'core:create_subject_project' %}" class="btn btn-primary mt-2">
+                    <i class="fas fa-plus me-1"></i>Create First Subject Project
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

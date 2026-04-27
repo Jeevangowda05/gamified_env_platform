@@ -34,6 +34,20 @@ urlpatterns = [
     path('teacher/courses/<slug:slug>/resources/', views.TeacherResourceListView.as_view(), name='teacher_course_resources'),
     path('teacher/courses/<slug:slug>/resources/add/', views.TeacherResourceCreateView.as_view(), name='teacher_course_resource_add'),
     path('teacher/resources/<int:pk>/delete/', views.TeacherResourceDeleteView.as_view(), name='teacher_course_resource_delete'),
+
+    # Student Projects
+    path('projects/', views.StudentProjectListView.as_view(), name='student_projects'),
+    path('projects/create/overall/', views.StudentProjectCreateView.as_view(), kwargs={'project_type': 'OVERALL'}, name='create_overall_project'),
+    path('projects/create/subject/', views.StudentProjectCreateView.as_view(), kwargs={'project_type': 'SUBJECT'}, name='create_subject_project'),
+    path('projects/<int:pk>/', views.ProjectDetailView.as_view(), name='project_detail'),
+    path('projects/<int:pk>/edit/', views.StudentProjectEditView.as_view(), name='edit_project'),
+    path('projects/<int:pk>/delete/', views.StudentProjectDeleteView.as_view(), name='delete_project'),
+    path('projects/<int:pk>/files/<int:file_id>/delete/', views.ProjectFileDeleteView.as_view(), name='delete_project_file'),
+
+    # Teacher Projects
+    path('teacher/projects/', views.TeacherProjectListView.as_view(), name='teacher_all_projects'),
+    path('teacher/projects/<int:pk>/', views.ProjectDetailView.as_view(), name='teacher_view_project'),
+
     # Utility endpoints
     path('health/', views.health_check, name='health_check'),
     path('robots.txt', views.robots_txt, name='robots_txt'),
