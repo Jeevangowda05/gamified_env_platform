@@ -6,16 +6,16 @@ Handles main dashboard, home page, and core functionality
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.views.generic import TemplateView, ListView, CreateView, DeleteView
+from django.views.generic import TemplateView, ListView, CreateView, DeleteView, DetailView, UpdateView
 from django.db.models import Count, Q, Avg
 from django.contrib import messages
 from django.utils import timezone
 from datetime import datetime, timedelta
 from django.http import JsonResponse, HttpResponse
 from django.contrib.auth import get_user_model
-from .models import Course, Module, Lesson, Enrollment, LessonProgress, Certificate, CourseResource
+from .models import Course, Module, Lesson, Enrollment, LessonProgress, Certificate, CourseResource, Project, ProjectFile
 from apps.core.models import Topic
-from .forms import CourseResourceForm
+from .forms import CourseResourceForm, ProjectForm, ProjectFileForm
 from apps.gamification.models import UserProgress, UserBadge
 from apps.teachers.models import StudentNotification, TeacherNotification, TeacherCourse
 from apps.teachers.utils import create_teacher_notification_for_course
@@ -935,3 +935,197 @@ def robots_txt(request):
         "Sitemap: https://ecolearn.edu/sitemap.xml"
     ]
     return HttpResponse("\n".join(lines), content_type="text/plain")
+
+
+# ===== STUDENT PROJECTS =====
+
+class StudentRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    """Mixin that restricts access to students only."""
+
+    def test_func(self):
+        return self.request.user.user_type == 'student'
+
+    def handle_no_permission(self):
+        if self.request.user.is_authenticated:
+            messages.error(self.request, 'Only students can access this page.')
+            return redirect('core:dashboard')
+        return super().handle_no_permission()
+
+
+class StudentProjectListView(StudentRequiredMixin, TemplateView):
+    """Show student's own projects split into two tabs: Overall and Subject-wise."""
+    template_name = 'core/student_project_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        overall = Project.objects.filter(owner=user, project_type='OVERALL').order_by('-created_at')
+        subject = Project.objects.filter(owner=user, project_type='SUBJECT').select_related('course').order_by('-created_at')
+        context['overall_projects'] = overall
+        context['subject_projects'] = subject
+        context['active_tab'] = self.request.GET.get('tab', 'overall')
+        return context
+
+
+class ProjectDetailView(LoginRequiredMixin, DetailView):
+    """Detail view for a project — students see their own, teachers see all."""
+    model = Project
+    context_object_name = 'project'
+    template_name = 'core/project_detail.html'
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.user_type == 'teacher' or user.is_superuser:
+            return Project.objects.select_related('owner', 'course').all()
+        return Project.objects.filter(owner=user).select_related('owner', 'course')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        project = self.object
+        files_by_type = {}
+        for pf in project.files.all():
+            files_by_type.setdefault(pf.get_file_type_display(), []).append(pf)
+        context['files_by_type'] = files_by_type
+        context['file_form'] = ProjectFileForm()
+        context['is_owner'] = self.request.user == project.owner
+        return context
+
+    def post(self, request, *args, **kwargs):
+        """Handle file upload from the detail page."""
+        project = self.get_object()
+        if request.user != project.owner:
+            messages.error(request, 'You can only upload files to your own projects.')
+            return redirect('core:project_detail', pk=project.pk)
+        form = ProjectFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            pf = form.save(commit=False)
+            pf.project = project
+            pf.save()
+            messages.success(request, 'File uploaded successfully.')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+        return redirect('core:project_detail', pk=project.pk)
+
+
+class StudentProjectCreateView(StudentRequiredMixin, CreateView):
+    """Create a new project (overall or subject-wise)."""
+    model = Project
+    form_class = ProjectForm
+    template_name = 'core/project_form.html'
+
+    def get_initial(self):
+        initial = super().get_initial()
+        project_type = self.kwargs.get('project_type', 'OVERALL')
+        initial['project_type'] = project_type
+        return initial
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['project_type'] = self.kwargs.get('project_type', 'OVERALL')
+        return context
+
+    def form_valid(self, form):
+        form.instance.owner = self.request.user
+        messages.success(self.request, 'Project created successfully.')
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('core:project_detail', kwargs={'pk': self.object.pk})
+
+
+class StudentProjectEditView(StudentRequiredMixin, UpdateView):
+    """Edit own project."""
+    model = Project
+    form_class = ProjectForm
+    template_name = 'core/project_form.html'
+
+    def get_queryset(self):
+        return Project.objects.filter(owner=self.request.user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['project_type'] = self.object.project_type
+        context['editing'] = True
+        return context
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Project updated successfully.')
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('core:project_detail', kwargs={'pk': self.object.pk})
+
+
+class StudentProjectDeleteView(StudentRequiredMixin, DeleteView):
+    """Delete own project."""
+    model = Project
+    context_object_name = 'project'
+    template_name = 'core/project_confirm_delete.html'
+
+    def get_queryset(self):
+        return Project.objects.filter(owner=self.request.user)
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Project deleted successfully.')
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('core:student_projects')
+
+
+class ProjectFileDeleteView(StudentRequiredMixin, DeleteView):
+    """Delete a file from a project (owner only)."""
+    model = ProjectFile
+    pk_url_kwarg = 'file_id'
+
+    def get_queryset(self):
+        return ProjectFile.objects.filter(project__owner=self.request.user)
+
+    def form_valid(self, form):
+        project_pk = self.object.project.pk
+        messages.success(self.request, 'File deleted successfully.')
+        self.object.delete()
+        return redirect('core:project_detail', pk=project_pk)
+
+    # Also handle GET (confirmation-less quick delete via POST form)
+    def get(self, request, *args, **kwargs):
+        return self.post(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        project_pk = self.object.project.pk
+        self.object.delete()
+        messages.success(request, 'File deleted successfully.')
+        return redirect('core:project_detail', pk=project_pk)
+
+
+class TeacherProjectListView(TeacherRequiredMixin, ListView):
+    """Teachers can view all student projects (read-only)."""
+    model = Project
+    context_object_name = 'projects'
+    template_name = 'teachers/teacher_all_projects.html'
+
+    def get_queryset(self):
+        qs = Project.objects.select_related('owner', 'course').order_by('-created_at')
+        project_type = self.request.GET.get('project_type')
+        course_id = self.request.GET.get('course')
+        owner_q = self.request.GET.get('owner', '').strip()
+        if project_type in ('OVERALL', 'SUBJECT'):
+            qs = qs.filter(project_type=project_type)
+        if course_id:
+            qs = qs.filter(course_id=course_id)
+        if owner_q:
+            qs = qs.filter(
+                Q(owner__first_name__icontains=owner_q) |
+                Q(owner__last_name__icontains=owner_q) |
+                Q(owner__username__icontains=owner_q)
+            )
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['courses'] = Course.objects.all()
+        context['filter_project_type'] = self.request.GET.get('project_type', '')
+        context['filter_course'] = self.request.GET.get('course', '')
+        context['filter_owner'] = self.request.GET.get('owner', '')
+        return context

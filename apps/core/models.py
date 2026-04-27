@@ -357,3 +357,53 @@ class Certificate(models.Model):
     
     def __str__(self):
         return f"{self.user.username} - {self.course.title} Certificate"
+
+
+class Project(models.Model):
+    PROJECT_TYPE_CHOICES = [
+        ('OVERALL', 'Overall Project'),
+        ('SUBJECT', 'Subject-wise Project'),
+    ]
+
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='projects')
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='projects',
+    )
+    project_type = models.CharField(max_length=10, choices=PROJECT_TYPE_CHOICES, default='OVERALL')
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    github_url = models.URLField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return self.title
+
+
+class ProjectFile(models.Model):
+    FILE_TYPE_CHOICES = [
+        ('REPORT', 'Report (PDF/DOCX)'),
+        ('PPT', 'Presentation (PPT/PPTX)'),
+        ('SYNOPSIS', 'Synopsis'),
+        ('CODE', 'Code (ZIP)'),
+        ('README', 'README'),
+        ('OTHER', 'Other'),
+    ]
+
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='files')
+    file_type = models.CharField(max_length=10, choices=FILE_TYPE_CHOICES, default='OTHER')
+    file = models.FileField(upload_to='projects/%Y/%m/%d/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.project.title} – {self.get_file_type_display()}"
+
+    def get_file_name(self):
+        return os.path.basename(self.file.name) if self.file else ''
