@@ -3,3 +3,4 @@ __pycache__/
 .pytest_cache/
 media/challenge_proofs/
 media/course_resources/
+db.sqlite3
