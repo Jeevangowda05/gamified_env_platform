@@ -14,17 +14,147 @@
                 {% for field in form %}
                 <div class="col-12">
                     <label class="form-label fw-semibold" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {% if field.name == 'topic' %}
+                    <div class="d-flex gap-2 align-items-start">
+                        <div class="flex-grow-1" id="topic-select-wrapper">
+                            {{ field }}
+                        </div>
+                        <button type="button" class="btn btn-outline-success text-nowrap" data-bs-toggle="modal" data-bs-target="#createTopicModal">
+                            <i class="fas fa-plus me-1"></i>Create Topic
+                        </button>
+                    </div>
+                    {% else %}
                     {{ field }}
+                    {% endif %}
                     {% if field.help_text %}<small class="text-muted d-block mt-1">{{ field.help_text }}</small>{% endif %}
                     {% for error in field.errors %}<small class="text-danger d-block">{{ error }}</small>{% endfor %}
                 </div>
                 {% endfor %}
             </div>
-            <div class="d-flex gap-2">
+            <div class="d-flex gap-2 mt-3">
                 <button type="submit" class="btn btn-primary">Save</button>
                 <a href="{% url 'teacher:course_list' %}" class="btn btn-outline-secondary">Cancel</a>
             </div>
         </form>
     </div>
 </div>
+
+<div class="modal fade" id="createTopicModal" tabindex="-1" aria-labelledby="createTopicModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createTopicModalLabel">
+                    <i class="fas fa-tags me-2 text-success"></i>Create New Topic
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted small">New topics appear on the Environmental Topics page for all users.</p>
+                <div id="topic-form-errors" class="alert alert-danger d-none"></div>
+                <form id="createTopicForm">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold" for="topic-name">Topic Name *</label>
+                        <input type="text" class="form-control" id="topic-name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold" for="topic-description">Description *</label>
+                        <textarea class="form-control" id="topic-description" name="description" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold" for="topic-difficulty">Difficulty Level</label>
+                        <select class="form-select" id="topic-difficulty" name="difficulty_level">
+                            <option value="beginner">Beginner</option>
+                            <option value="intermediate">Intermediate</option>
+                            <option value="advanced">Advanced</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold" for="topic-color">Theme Color</label>
+                        <select class="form-select" id="topic-color" name="background_color">
+                            <option value="#38A169">Green</option>
+                            <option value="#3182CE">Blue</option>
+                            <option value="#805AD5">Purple</option>
+                            <option value="#319795">Teal</option>
+                            <option value="#DD6B20">Orange</option>
+                            <option value="#E53E3E">Red</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold" for="topic-icon">Icon (FontAwesome class)</label>
+                        <input type="text" class="form-control" id="topic-icon" name="icon"
+                               placeholder="fas fa-leaf" value="fas fa-leaf">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" id="saveTopicBtn">
+                    <i class="fas fa-check me-1"></i>Create Topic
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const saveBtn = document.getElementById('saveTopicBtn');
+    const topicForm = document.getElementById('createTopicForm');
+    const topicSelect = document.getElementById('id_topic');
+    const errorBox = document.getElementById('topic-form-errors');
+    const modalEl = document.getElementById('createTopicModal');
+
+    if (!saveBtn || !topicForm || !topicSelect) return;
+
+    saveBtn.addEventListener('click', async function() {
+        errorBox.classList.add('d-none');
+        errorBox.innerHTML = '';
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Creating...';
+
+        const formData = new FormData(topicForm);
+        try {
+            const response = await fetch('{% url "teacher:topic_create" %}', {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
+                },
+                body: formData,
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                const option = document.createElement('option');
+                option.value = data.topic.id;
+                option.textContent = data.topic.name;
+                option.selected = true;
+                topicSelect.appendChild(option);
+
+                topicForm.reset();
+                document.getElementById('topic-icon').value = 'fas fa-leaf';
+                bootstrap.Modal.getInstance(modalEl).hide();
+            } else if (data.errors) {
+                let html = '<ul class="mb-0">';
+                for (const [field, errors] of Object.entries(data.errors)) {
+                    errors.forEach(err => { html += `<li>${field}: ${err}</li>`; });
+                }
+                html += '</ul>';
+                errorBox.innerHTML = html;
+                errorBox.classList.remove('d-none');
+            }
+        } catch (err) {
+            errorBox.textContent = 'Something went wrong. Please try again.';
+            errorBox.classList.remove('d-none');
+        } finally {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = '<i class="fas fa-check me-1"></i>Create Topic';
+        }
+    });
+});
+</script>
 {% endblock %}

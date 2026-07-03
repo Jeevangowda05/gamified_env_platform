@@ -21,6 +21,7 @@ from .forms import (
     ModuleForm,
     QuestionForm,
     QuizForm,
+    TopicForm,
 )
 from .models import TeacherCourse
 from .utils import (
@@ -100,6 +101,34 @@ def course_list(request):
             **_teacher_base_context(),
         },
     )
+
+
+@teacher_required
+def topic_create(request):
+    form = TopicForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        topic = form.save()
+        if not topic.icon:
+            topic.icon = 'fas fa-leaf'
+            topic.save(update_fields=['icon'])
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': True,
+                'topic': {'id': topic.id, 'name': topic.name, 'slug': topic.slug},
+                'message': f'Topic "{topic.name}" created successfully.',
+            })
+        messages.success(request, f'Topic "{topic.name}" created successfully.')
+        return redirect('teacher:course_create')
+
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({
+            'success': False,
+            'errors': form.errors,
+        }, status=400)
+
+    context = {'form': form}
+    context.update(_teacher_base_context())
+    return render(request, 'teachers/topic_form.html', context)
 
 
 @teacher_required

@@ -4,11 +4,20 @@ Contains common settings used across all environments
 """
 
 import os
+import re
 from pathlib import Path
-from decouple import config
+from decouple import Config, RepositoryEnv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
+
+# Always load .env from the project root
+_env_file = BASE_DIR / '.env'
+if _env_file.exists():
+    config = Config(RepositoryEnv(str(_env_file)))
+else:
+    from decouple import config as _config
+    config = _config
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-change-this-in-production-very-long-secret-key-for-development')
@@ -21,6 +30,7 @@ DJANGO_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
 ]
 
 THIRD_PARTY_APPS = [
@@ -29,6 +39,11 @@ THIRD_PARTY_APPS = [
     'corsheaders',
     'crispy_forms',
     'crispy_bootstrap5',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.facebook',
 ]
 
 LOCAL_APPS = [
@@ -51,6 +66,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -149,10 +165,73 @@ LOGOUT_REDIRECT_URL = 'core:home'
 # Authentication backends
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
-# Email settings (configure for production)
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# django.contrib.sites
+SITE_ID = 1
+
+# django-allauth settings
+ACCOUNT_ADAPTER = 'apps.accounts.adapters.EcoLearnAccountAdapter'
+SOCIALACCOUNT_ADAPTER = 'apps.accounts.adapters.EcoLearnSocialAccountAdapter'
+ACCOUNT_LOGIN_METHODS = {'email'}
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+SOCIALACCOUNT_AUTO_SIGNUP = True
+SOCIALACCOUNT_QUERY_EMAIL = True
+SOCIALACCOUNT_LOGIN_ON_GET = True
+LOGIN_REDIRECT_URL = 'core:dashboard'
+ACCOUNT_LOGOUT_REDIRECT_URL = 'core:home'
+
+GOOGLE_CLIENT_ID = config('GOOGLE_CLIENT_ID', default='')
+GOOGLE_CLIENT_SECRET = config('GOOGLE_CLIENT_SECRET', default='')
+FACEBOOK_APP_ID = config('FACEBOOK_APP_ID', default='')
+FACEBOOK_APP_SECRET = config('FACEBOOK_APP_SECRET', default='')
+
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'APP': {
+            'client_id': GOOGLE_CLIENT_ID,
+            'secret': GOOGLE_CLIENT_SECRET,
+            'key': '',
+        },
+        'SCOPE': ['profile', 'email'],
+        'AUTH_PARAMS': {'access_type': 'online'},
+    },
+    'facebook': {
+        'APP': {
+            'client_id': FACEBOOK_APP_ID,
+            'secret': FACEBOOK_APP_SECRET,
+        },
+        'METHOD': 'oauth2',
+        'SCOPE': ['email', 'public_profile'],
+        'FIELDS': ['id', 'email', 'name', 'first_name', 'last_name'],
+    },
+}
+
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='EcoLearn Platform <noreply@ecolearn.local>')
+
+# Site URL (used for emails and OAuth callbacks)
+SITE_DOMAIN = config('SITE_DOMAIN', default='127.0.0.1:8000')
+SITE_PROTOCOL = config('SITE_PROTOCOL', default='http')
+
+# Email — uses real Gmail SMTP when credentials are set in .env
+EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
+EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='').strip()
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='').strip().replace(' ', '')
+
+def _smtp_credentials_valid():
+    placeholders = ('your-email', 'your-gmail', 'your-app-password', 'example.com')
+    user_ok = EMAIL_HOST_USER and not any(p in EMAIL_HOST_USER.lower() for p in placeholders)
+    pass_ok = EMAIL_HOST_PASSWORD and not any(p in EMAIL_HOST_PASSWORD.lower() for p in placeholders)
+    return user_ok and pass_ok
+
+if _smtp_credentials_valid():
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Cache settings
 CACHES = {

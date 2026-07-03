@@ -7,6 +7,7 @@ app_name = 'teacher'
 urlpatterns = [
     path('dashboard/', views.dashboard, name='dashboard'),
     path('courses/', views.course_list, name='course_list'),
+    path('topics/create/', views.topic_create, name='topic_create'),
     path('courses/create/', views.course_create, name='course_create'),
     path('courses/<int:course_id>/builder/', views.course_builder, name='course_builder'),
     path('courses/<int:course_id>/edit/', views.course_update, name='course_update'),

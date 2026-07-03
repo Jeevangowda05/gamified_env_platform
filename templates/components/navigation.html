@@ -191,6 +191,9 @@
                         <li><a class="dropdown-item" href="{% url 'challenges:challenge_list' %}">
                         <i class="fas fa-trophy text-success me-2"></i>Challenges
                         </a></li>
+                        <li><a class="dropdown-item {% if 'project' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'core:student_projects' %}">
+                        <i class="fas fa-folder-open text-warning me-2"></i>My Projects
+                        </a></li>
                     </ul>
                 </li>
                 {% endif %}
@@ -229,6 +232,9 @@
                         </li>
                         <li><a class="dropdown-item" href="{% url 'challenges:challenge_list' %}">
                         <i class="fas fa-trophy text-success me-2"></i>Challenges
+                        </a></li>
+                        <li><a class="dropdown-item {% if 'project' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'core:teacher_all_projects' %}">
+                        <i class="fas fa-folder-open text-warning me-2"></i>All Projects
                         </a></li>
                     </ul>
                 </li>

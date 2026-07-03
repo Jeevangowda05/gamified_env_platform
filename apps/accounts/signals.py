@@ -2,12 +2,33 @@
 Signals for accounts app
 """
 
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_migrate
 from django.dispatch import receiver
 from .models import User, UserProfile
 from django.contrib.auth.signals import user_logged_in
 from django.utils import timezone
 from apps.gamification.models import UserProgress, PointTransaction
+
+
+@receiver(post_migrate)
+def ensure_site_domain(sender, **kwargs):
+    if sender.name != 'apps.accounts':
+        return
+    try:
+        from django.conf import settings
+        from django.contrib.sites.models import Site
+
+        domain = getattr(settings, 'SITE_DOMAIN', '127.0.0.1:8000')
+        site, _ = Site.objects.get_or_create(
+            pk=settings.SITE_ID,
+            defaults={'domain': domain, 'name': 'EcoLearn Platform'},
+        )
+        if site.domain != domain or site.name != 'EcoLearn Platform':
+            site.domain = domain
+            site.name = 'EcoLearn Platform'
+            site.save(update_fields=['domain', 'name'])
+    except Exception:
+        pass
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):

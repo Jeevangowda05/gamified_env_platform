@@ -44,8 +44,7 @@ DEBUG_TOOLBAR_PANELS = [
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
-# Email backend for development
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# Email uses SMTP from base.py when EMAIL_HOST_USER + EMAIL_HOST_PASSWORD are in .env
 
 # Logging configuration
 LOGGING = {

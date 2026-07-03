@@ -332,14 +332,14 @@ a.text-muted:hover {
                     </div>
 
                      <div class="social-login">
-                        <button type="button" class="btn-social btn-google" onclick="loginWithGoogle()">
+                        <a href="{% url 'accounts:social_google' %}" class="btn-social btn-google text-decoration-none">
                             <i class="fab fa-google"></i>
                             <span>Google</span>
-                        </button>
-                        <button type="button" class="btn-social btn-facebook" onclick="loginWithFacebook()">
+                        </a>
+                        <a href="{% url 'accounts:social_facebook' %}" class="btn-social btn-facebook text-decoration-none">
                             <i class="fab fa-facebook-f"></i>
                             <span>Facebook</span>
-                        </button>
+                        </a>
                     </div>
 
                     <div class="text-center">
@@ -353,13 +353,4 @@ a.text-muted:hover {
         </div>
     </div>
 </div>
-<script>
-function loginWithGoogle() {
-    alert('Google login coming soon! Please use regular login for now.');
-}
-
-function loginWithFacebook() {
-    alert('Facebook login coming soon! Please use regular login for now.');
-}
-</script>
 {% endblock %}

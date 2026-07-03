@@ -204,8 +204,8 @@
         {% for topic in topics %}
         <div class="col-lg-4 col-md-6">
             <div class="topic-card animate-fade-in" onclick="window.location.href='{% url 'core:topic_detail' topic.slug %}'">
-                <div class="topic-icon-wrapper" style="background: linear-gradient(135deg, {{ topic.color_start|default:'#667eea' }}, {{ topic.color_end|default:'#764ba2' }});">
-                    <i class="fas {{ topic.icon|default:'fa-leaf' }} topic-icon"></i>
+                <div class="topic-icon-wrapper" style="background: linear-gradient(135deg, {{ topic.background_color|default:'#667eea' }}, {{ topic.background_color|default:'#764ba2' }});">
+                    <i class="{{ topic.icon|default:'fas fa-leaf' }} topic-icon"></i>
                 </div>
                 <h3 class="topic-title">{{ topic.name }}</h3>
                 <p class="topic-description">{{ topic.description|truncatewords:20 }}</p>

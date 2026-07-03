@@ -9,6 +9,9 @@ djangorestframework>=3.14
 django-cors-headers>=4.0
 django-crispy-forms>=2.0
 crispy-bootstrap5>=0.7
+django-allauth>=0.57.0,<66.0
+PyJWT>=2.0
+cryptography>=41.0
 
 # Development tools
 django-debug-toolbar>=4.0

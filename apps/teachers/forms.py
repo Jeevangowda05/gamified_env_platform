@@ -2,12 +2,30 @@ from django import forms
 from django.utils import timezone
 
 from apps.assessments.models import Question, Quiz
-from apps.core.models import Course, Lesson, Module
+from apps.core.models import Course, Lesson, Module, Topic
+
+
+class TopicForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.setdefault('class', 'form-control')
+
+    class Meta:
+        model = Topic
+        fields = ['name', 'description', 'difficulty_level', 'background_color', 'icon']
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 3}),
+            'icon': forms.TextInput(attrs={
+                'placeholder': 'e.g. fas fa-leaf',
+            }),
+        }
 
 
 class CourseForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['topic'].queryset = Topic.objects.filter(is_active=True).order_by('name')
         for field in self.fields.values():
             field.widget.attrs.setdefault('class', 'form-control')
 
